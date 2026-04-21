@@ -1,40 +1,80 @@
-# secondwind — Agent Instructions (Codex / Claude Code / others)
+# secondwind — 에이전트 지시문 (Codex / 기타)
 
-This file mirrors `CLAUDE.md` so that Codex and other AGENTS.md-aware agents follow the same rules as Claude Code.
+이 파일은 `CLAUDE.md` 와 동일한 팀 원칙을 Codex 및 AGENTS.md 를 읽는 에이전트 관점으로 작성한 문서입니다.
 
-If you are Claude Code, read `CLAUDE.md` instead.
-If you are Codex or another agent, the instructions below apply.
+- Claude Code 라면 `CLAUDE.md` 를 읽으세요.
+- Codex 또는 기타 에이전트는 아래가 적용됩니다.
 
 ---
 
-## Workflow layer: gstack
+## 도구 환경
 
-This project uses [gstack](https://github.com/garrytan/gstack) for shared slash commands and conventions. The full ruleset lives in `~/.claude/skills/gstack/AGENTS.md` and per-skill `SKILL.md` files. Read them on demand.
+이 프로젝트는 [gstack](./GSTACK.md) 을 공용 워크플로 레이어로 사용합니다. Codex 에서 gstack 스킬은 `gstack-` 접두사가 붙습니다 (예: `/gstack-qa`, `/gstack-ship`).
 
-In Codex, gstack skills are namespaced with `gstack-` prefix (e.g., `/gstack-qa`, `/gstack-ship`).
+전체 명령어 목록·설치·트러블슈팅은 `GSTACK.md` 와 `~/.codex/skills/gstack/AGENTS.md` 를 참조하세요.
 
-## Rules for every session
+---
 
-1. **Investigate before modifying.** Never patch without reproducing or tracing the root cause (`/gstack-investigate`).
-2. **Respect `/gstack-freeze` and `/gstack-careful`.** Do not edit frozen paths. Confirm before destructive commands.
-3. **Small, reviewable PRs.** Use `/gstack-ship` — it runs tests and coverage before opening a PR.
-4. **Non-developer audience.** Two teammates cannot read diffs fluently. Lead explanations with *what the user will see* before *how the code changed*.
-5. **Production-grade defaults.** Run `/gstack-review` + `/gstack-qa` before `/gstack-ship`.
+## 현재 단계
 
-## Typical workflow
+**제품이 아직 없습니다.** 프레임워크·코드·DB·배포 타깃 모두 미정.
+
+- 스스로 프레임워크를 고르거나 스캐폴딩 하지 말 것.
+- 사용자가 "X 만들자" 라고 모호하게 말하면 먼저 `/gstack-office-hours` 를 제안.
+
+---
+
+## 팀 원칙 (매 세션 적용)
+
+도구와 무관하게 지켜야 할 원칙:
+
+1. **재현이 먼저, 수정은 그 다음.** (`/gstack-investigate`)
+2. **편집 제한 영역 존중.** freeze 된 경로는 수정하지 않는다. 파괴적 명령은 사용자에게 먼저 확인. (`/gstack-freeze`, `/gstack-careful`)
+3. **작은, 리뷰 가능한 PR.** `/gstack-ship` 으로 테스트·커버리지 거쳐 연다.
+4. **비개발자 청중 고려.** 변경 설명은 *사용자가 보게 될 것* 이 먼저, 코드 변경은 그 다음.
+5. **프로토타입에도 프로덕션 기준.** `/gstack-review` + `/gstack-qa` 를 `/gstack-ship` 전에 반드시.
+
+---
+
+## 문서 작성 규칙 (`docs/`)
+
+`docs/` 아래 `.md` 파일을 생성·수정할 때는 반드시 frontmatter 를 포함·갱신:
+
+```yaml
+---
+title: 문서 제목
+author: ai-<스킬이름>            # 또는 "human: <이름>", "mixed"
+status: draft                    # draft | reviewed | approved
+created: YYYY-MM-DD
+last-edited-by: <이름 또는 스킬>
+---
+```
+
+- 새 문서: 모든 필드 채움
+- 기존 문서 수정: `last-edited-by` 갱신, 상태가 올라가면 `status` 도 갱신
+- `status: approved` 문서는 사소한 편집도 **사람에게 먼저 확인** 후 진행
+
+폴더 구조·파일명 규칙 등 상세는 `docs/README.md`.
+
+---
+
+## 반드시 개발자 확인을 받아야 하는 작업
+
+다음 작업은 비개발자 팀원이 아니라 **개발자 본인** 에게 확인받고 진행:
+
+- 스키마 마이그레이션, 파괴적 DB 작업
+- `.github/`, `scripts/`, `package.json`, 락파일, CI 설정 변경
+- Secret / API 키 / OAuth 설정 추가 또는 변경
+- Force push, 공유 브랜치의 rebase, `git reset --hard`
+
+재작성보다 추가 변경 선호. 애매하면 `/gstack-plan-eng-review` 먼저.
+
+---
+
+## 일반적 워크플로
 
 ```
-/gstack-office-hours   →  /gstack-autoplan  →  implement
-       →  /gstack-review  →  /gstack-qa  →  /gstack-ship
-       →  /gstack-land-and-deploy  →  /gstack-canary
+/gstack-office-hours  →  /gstack-autoplan  →  구현
+    →  /gstack-review  →  /gstack-qa  →  /gstack-ship
+    →  /gstack-land-and-deploy  →  /gstack-canary
 ```
-
-## Stop-and-ask triggers
-
-Stop and ask the developer (not the non-dev teammates) before:
-- Schema migrations or destructive DB operations
-- Changes under `.github/`, `scripts/`, `package.json`, lockfiles, CI config
-- Adding or rotating secrets, API keys, OAuth config
-- Force-pushes, rebases of shared branches, or `git reset --hard`
-
-Prefer additive changes over rewrites. When unsure, run `/gstack-plan-eng-review` first.
