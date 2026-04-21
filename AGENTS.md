@@ -36,6 +36,17 @@
 
 ---
 
+## Git identity 규칙 (중요)
+
+이 프로젝트는 **개인 GitHub 계정만** 허용합니다. 회사 계정/이메일 (`*@woowahan.com`, GitLab 등) 은 **절대** 커밋·원격·설정에 섞이지 않게 합니다.
+
+- 커밋 전 `git config user.email` 이 개인 이메일인지 확인
+- 회사 도메인 흔적 발견 시 즉시 멈추고 사용자에게 알림
+- 원격 URL 도 `github.com` 만 허용 (gitlab·사내 호스트는 거부)
+- `scripts/setup-git-hooks.sh` 로 `pre-commit` 훅이 회사 도메인을 자동 차단함 — clone 후 반드시 한 번 실행
+
+---
+
 ## 문서 작성 규칙 (`docs/`)
 
 `docs/` 아래 `.md` 파일을 생성·수정할 때는 반드시 frontmatter 를 포함·갱신:
