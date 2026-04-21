@@ -34,10 +34,10 @@
 
 ## 커밋 메시지 규칙
 
-AI 가 `git commit` 을 생성할 때 **커밋 메시지는 반드시 한글로 작성**합니다.
+AI 가 `git commit` 을 생성할 때:
 
-- 제목과 본문 모두 한글
-- 기술 용어·파일명·명령어(예: `pre-commit`, `CODEOWNERS`, `.github/workflows/`)는 원문 그대로 유지해도 됨
+- **제목과 본문 모두 한글** 로 작성. 기술 용어·파일명·명령어(예: `pre-commit`, `CODEOWNERS`, `.github/workflows/`)는 원문 유지 가능.
+- **`Co-Authored-By:` trailer 넣지 말 것.** AI 모델 서명 (`Claude Opus ... <noreply@anthropic.com>` 등) 은 GitHub UI 에서 봇 아바타가 붙어 커밋 저자가 혼잡해 보이므로 이 프로젝트에서는 생략. 사용자(akushig) 단독 author 로 깨끗하게.
 - 사람 팀원이 직접 커밋하는 경우는 자유 (이 규칙은 AI 에이전트 대상)
 
 ---
