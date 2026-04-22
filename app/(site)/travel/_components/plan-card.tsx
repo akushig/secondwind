@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import {
   computeBudget,
+  enumeratePoints,
   kakaoMapSearchUrl,
   type TransitInfo,
   type TravelItem,
@@ -8,8 +9,11 @@ import {
 } from "@/lib/common/services/travel";
 import { MapView } from "./map-view";
 
+const DAY_COLORS = ["#2563eb", "#059669", "#d97706", "#db2777", "#7c3aed", "#0d9488", "#c026d3"];
+
 export function PlanCard({ plan }: { plan: TravelPlan }) {
   const budget = computeBudget(plan);
+  const labelByItem = new Map(enumeratePoints(plan).map((p) => [p.item, p.label]));
 
   return (
     <article className="space-y-6 rounded-xl border border-neutral-300 p-5 dark:border-neutral-700">
@@ -21,15 +25,19 @@ export function PlanCard({ plan }: { plan: TravelPlan }) {
       <MapView plan={plan} />
 
       <ol className="space-y-6">
-        {plan.days.map((day, i) => (
-          <li key={i} className="space-y-2">
+        {plan.days.map((day, dayIdx) => (
+          <li key={dayIdx} className="space-y-2">
             <h3 className="text-sm font-semibold">{day.label}</h3>
             <ol className="space-y-1.5">
               {day.items.map((item, j) => (
                 <Fragment key={j}>
                   {j > 0 && item.transit && <TransitRow transit={item.transit} />}
                   <li>
-                    <ItemCard item={item} />
+                    <ItemCard
+                      item={item}
+                      label={labelByItem.get(item)}
+                      dayIndex={dayIdx}
+                    />
                   </li>
                 </Fragment>
               ))}
@@ -68,7 +76,15 @@ function TransitRow({ transit }: { transit: TransitInfo }) {
   );
 }
 
-function ItemCard({ item }: { item: TravelItem }) {
+function ItemCard({
+  item,
+  label,
+  dayIndex,
+}: {
+  item: TravelItem;
+  label: string | undefined;
+  dayIndex: number;
+}) {
   const addr = item.place?.address;
   const phone = item.place?.phone;
   const category = item.place?.category;
@@ -78,6 +94,7 @@ function ItemCard({ item }: { item: TravelItem }) {
   const hasDetail = Boolean(addr || phone || category || item.recommended_menu || showCost);
 
   const costLabel = item.cost_label ?? "비용";
+  const pinColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
 
   return (
     <details className="group rounded-lg border border-neutral-200 open:bg-neutral-50 dark:border-neutral-800 dark:open:bg-neutral-900/50">
@@ -86,6 +103,15 @@ function ItemCard({ item }: { item: TravelItem }) {
           <span className="w-12 shrink-0 pt-0.5 font-mono text-xs text-neutral-500">{item.time}</span>
         ) : (
           <span className="w-12 shrink-0" aria-hidden />
+        )}
+        {label && (
+          <span
+            aria-label={`지도 위치 ${label}`}
+            style={{ background: pinColor }}
+            className="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-white"
+          >
+            {label}
+          </span>
         )}
         <span className="flex-1 leading-korean">{item.text}</span>
         {kakaoUrl && (

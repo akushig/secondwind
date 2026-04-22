@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { TravelPlan } from "@/lib/common/services/travel";
+import { enumeratePoints, type PointEntry, type TravelPlan } from "@/lib/common/services/travel";
 
 declare global {
   interface Window {
@@ -42,37 +42,7 @@ type KakaoPolyline = { setMap: (m: KakaoMap | null) => void };
 type KakaoCustomOverlay = { setMap: (m: KakaoMap | null) => void };
 
 const DAY_COLORS = ["#2563eb", "#059669", "#d97706", "#db2777", "#7c3aed", "#0d9488", "#c026d3"];
-
-type Point = {
-  lat: number;
-  lng: number;
-  dayIndex: number;
-  orderInDay: number;
-  label: string;
-  text: string;
-};
-
-function collectPoints(plan: TravelPlan): Point[] {
-  const points: Point[] = [];
-  plan.days.forEach((day, dayIndex) => {
-    let orderInDay = 0;
-    for (const item of day.items) {
-      const lat = item.place?.lat;
-      const lng = item.place?.lng;
-      if (typeof lat !== "number" || typeof lng !== "number") continue;
-      orderInDay += 1;
-      points.push({
-        lat,
-        lng,
-        dayIndex,
-        orderInDay,
-        label: `${dayIndex + 1}-${orderInDay}`,
-        text: item.place?.name ?? item.text,
-      });
-    }
-  });
-  return points;
-}
+const OSRM_URL = "https://router.project-osrm.org/route/v1/driving";
 
 function loadKakaoSdk(appKey: string): Promise<KakaoGlobal> {
   if (typeof window === "undefined") return Promise.reject(new Error("server"));
@@ -110,23 +80,48 @@ function loadKakaoSdk(appKey: string): Promise<KakaoGlobal> {
   });
 }
 
+// OSRM public demo 로 day 내 구간 실제 도로 경로 받기.
+// 실패 시 undefined 반환 — 호출자가 직선 fallback 처리.
+async function fetchRouteGeometry(
+  points: PointEntry[],
+  signal: AbortSignal,
+): Promise<Array<[number, number]> | undefined> {
+  if (points.length < 2) return undefined;
+  const coordStr = points.map((p) => `${p.lng},${p.lat}`).join(";");
+  const url = `${OSRM_URL}/${coordStr}?overview=full&geometries=geojson`;
+  try {
+    const res = await fetch(url, { signal });
+    if (!res.ok) return undefined;
+    const data = (await res.json()) as {
+      routes?: Array<{ geometry?: { coordinates?: Array<[number, number]> } }>;
+    };
+    const geo = data.routes?.[0]?.geometry?.coordinates;
+    if (!Array.isArray(geo) || geo.length === 0) return undefined;
+    return geo;
+  } catch {
+    return undefined;
+  }
+}
+
 export function MapView({ plan }: { plan: TravelPlan }) {
   const appKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? "";
-  const points = collectPoints(plan);
+  const points = enumeratePoints(plan);
   const containerRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [routeMode, setRouteMode] = useState<"road" | "straight" | "mixed">("straight");
 
   useEffect(() => {
     if (!appKey) return;
     if (points.length === 0) return;
     if (!containerRef.current) return;
 
+    const abortController = new AbortController();
     let cancelled = false;
     setState("loading");
 
     loadKakaoSdk(appKey)
-      .then((kakao) => {
+      .then(async (kakao) => {
         if (cancelled || !containerRef.current) return;
 
         const bounds = new kakao.maps.LatLngBounds();
@@ -144,24 +139,45 @@ export function MapView({ plan }: { plan: TravelPlan }) {
           new kakao.maps.CustomOverlay({ position: ll, content, yAnchor: 0.5, xAnchor: 0.5, map });
         }
 
-        // Day 별로 polyline 그리기
-        const byDay = new Map<number, KakaoLatLng[]>();
+        // Day 별 그룹화
+        const byDay = new Map<number, PointEntry[]>();
         for (const p of points) {
           const arr = byDay.get(p.dayIndex) ?? [];
-          arr.push(new kakao.maps.LatLng(p.lat, p.lng));
+          arr.push(p);
           byDay.set(p.dayIndex, arr);
         }
-        for (const [dayIdx, path] of byDay.entries()) {
-          if (path.length < 2) continue;
+
+        // Day 별 경로: OSRM 으로 도로 경로 병렬 요청, 실패 시 직선 fallback
+        let hadRoad = 0;
+        let hadStraight = 0;
+        const dayEntries = Array.from(byDay.entries());
+        const routeResults = await Promise.all(
+          dayEntries.map(([, path]) => fetchRouteGeometry(path, abortController.signal)),
+        );
+
+        if (cancelled) return;
+
+        dayEntries.forEach(([dayIdx, path], i) => {
+          if (path.length < 2) return;
+          const routeGeo = routeResults[i];
+          const latLngs: KakaoLatLng[] = routeGeo
+            ? routeGeo.map(([lng, lat]) => new kakao.maps.LatLng(lat, lng))
+            : path.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
+          if (routeGeo) hadRoad++;
+          else hadStraight++;
           new kakao.maps.Polyline({
-            path,
+            path: latLngs,
             strokeWeight: 3,
             strokeColor: DAY_COLORS[dayIdx % DAY_COLORS.length] ?? "#2563eb",
             strokeOpacity: 0.7,
-            strokeStyle: "solid",
+            strokeStyle: routeGeo ? "solid" : "shortdash",
             map,
           });
-        }
+        });
+
+        if (hadRoad > 0 && hadStraight === 0) setRouteMode("road");
+        else if (hadRoad === 0 && hadStraight > 0) setRouteMode("straight");
+        else if (hadRoad > 0 && hadStraight > 0) setRouteMode("mixed");
 
         if (!bounds.isEmpty()) map.setBounds(bounds);
         setState("ready");
@@ -172,21 +188,31 @@ export function MapView({ plan }: { plan: TravelPlan }) {
         setState("error");
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      abortController.abort();
+    };
   }, [appKey, plan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!appKey) return null;
   if (points.length === 0) return null;
 
+  const statusText =
+    state === "loading"
+      ? "지도 불러오는 중…"
+      : state === "error"
+      ? `지도 로드 실패 (${errorMsg})`
+      : state === "ready"
+      ? `${points.length}개 장소 · ${plan.days.length}일 · ${
+          routeMode === "road" ? "도로 경로" : routeMode === "mixed" ? "일부 도로 경로" : "직선"
+        }`
+      : "";
+
   return (
     <section className="space-y-2">
       <header className="flex items-baseline justify-between">
         <h3 className="text-sm font-semibold">전체 경로</h3>
-        <span className="text-xs text-neutral-400">
-          {state === "loading" && "지도 불러오는 중…"}
-          {state === "ready" && `${points.length}개 장소 · ${plan.days.length}일`}
-          {state === "error" && `지도 로드 실패 (${errorMsg})`}
-        </span>
+        <span className="text-xs text-neutral-400">{statusText}</span>
       </header>
       <div
         ref={containerRef}
