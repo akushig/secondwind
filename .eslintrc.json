@@ -1,0 +1,16 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["**/app/(site)/travel/**", "**/app/(site)/diary/**", "**/app/(site)/experiment-3/**"],
+            "message": "서비스 폴더 간 직접 import 금지. 공유는 components/common · lib/common 으로."
+          }
+        ]
+      }
+    ]
+  }
+}
