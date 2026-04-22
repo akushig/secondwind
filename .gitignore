@@ -6,6 +6,12 @@ node_modules/
 .bun/
 *.log
 
+# Next.js
+.next/
+out/
+next-env.d.ts.bak
+*.tsbuildinfo
+
 # Env
 .env
 .env.local
