@@ -150,6 +150,37 @@ export function kakaoMapSearchUrl(query: string): string {
   return `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
 }
 
+export type PointEntry = {
+  item: TravelItem;
+  dayIndex: number;
+  orderInDay: number;
+  label: string;
+  lat: number;
+  lng: number;
+};
+
+export function enumeratePoints(plan: TravelPlan): PointEntry[] {
+  const out: PointEntry[] = [];
+  plan.days.forEach((day, dayIndex) => {
+    let orderInDay = 0;
+    for (const item of day.items) {
+      const lat = item.place?.lat;
+      const lng = item.place?.lng;
+      if (typeof lat !== "number" || typeof lng !== "number") continue;
+      orderInDay += 1;
+      out.push({
+        item,
+        dayIndex,
+        orderInDay,
+        label: `${dayIndex + 1}-${orderInDay}`,
+        lat,
+        lng,
+      });
+    }
+  });
+  return out;
+}
+
 export function computeBudget(plan: TravelPlan): {
   activity: number;
   transit: number;
