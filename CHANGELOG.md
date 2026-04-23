@@ -2,6 +2,14 @@
 
 secondwind 의 주요 변경 사항을 기록합니다. 날짜 포맷은 `YYYY-MM-DD`, 버전은 4자리 `MAJOR.MINOR.PATCH.MICRO`.
 
+## [0.1.3.0] - 2026-04-24
+
+### Fixed
+- `/travel` 결과의 장소 카드 사이에 이동경로 정보 (transit row) 가 표시되지 않던 회귀 수정. v0.1.1.0 의 인원 필드 제거 이후 Gemini 가 transit 필드를 중간 item 에서 반복적으로 누락하고, 대신 금지된 "도착/출발/귀가" phantom item 에만 붙이는 현상이 관찰됨.
+- 시스템 프롬프트의 transit 규칙을 완곡어 "생략 가능" → "첫 item 만 생략, 그 외 필수 (값 누락 금지)" 로 강화.
+- rule #3 (도착/출발 등 생략 대상 활동) 에 "transit 필드도 붙이지 말 것 · 이동은 별도 item 이 아니라 다음 실제 장소의 transit 필드로" 문구 추가.
+- 배경: `/travel` 실측 — 수정 전 14개 item 중 transit 2개 (도착·귀가 phantom 에만), 수정 후 10개 item 중 9개 transit 정상 부착 확인.
+
 ## [0.1.2.0] - 2026-04-23
 
 ### Added
