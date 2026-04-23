@@ -2,6 +2,21 @@
 
 secondwind 의 주요 변경 사항을 기록합니다. 날짜 포맷은 `YYYY-MM-DD`, 버전은 4자리 `MAJOR.MINOR.PATCH.MICRO`.
 
+## [0.1.7.0] - 2026-04-24
+
+### Changed
+- **장소 카드 지도 아이콘을 인앱 레이어 팝업으로 전환.** 이전엔 카카오맵 웹/앱을 새 탭/외부 앱으로 열어 흐름이 끊겼음. 지금은 같은 페이지 안의 모달 (모바일 바텀 시트 · 데스크톱 중앙 카드) 에 카카오맵 JS SDK 로 미니맵 + 장소명·카테고리·주소·전화 표시. 기존 "카카오맵에서 열기 (길찾기·거리뷰)" 기능은 팝업 하단의 외부 링크 버튼으로 유지.
+- `<a href target="_blank">` → `<button onClick>` 으로 교체. `<summary>` 내부 default toggle 과 충돌하지 않도록 `preventDefault` + `stopPropagation` 처리.
+- ESC 키 · 배경 클릭 · X 버튼으로 닫힘. 접근성: `role="dialog"` · `aria-modal="true"` · `aria-label`.
+
+### Added
+- 신규 컴포넌트 `app/(site)/travel/_components/place-popup.tsx`.
+- 신규 공유 모듈 `lib/common/kakao.ts` — Kakao Maps JS SDK 로더 + 타입. 기존 `map-view.tsx` 의 inline 정의를 추출해 `PlacePopup` 과 공유. MapView 도 같은 lib 사용.
+
+### Note
+- 장소 카드에 `item.place` 또는 `item.place_query` 가 없으면 지도 아이콘 자체가 숨겨짐 (보여도 쓸모 없으니까).
+- Naver 매칭 실패로 lat/lng 없는 경우 팝업은 지도 대신 fallback 텍스트 "정확한 위치를 확인하지 못했어요 · '검색어' 로 카카오맵에서 확인" 과 외부 링크 버튼만 노출.
+
 ## [0.1.6.0] - 2026-04-24
 
 ### Added
