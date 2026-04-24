@@ -81,7 +81,22 @@ export function TravelForm() {
 
   return (
     <div className="space-y-8">
-      <form onSubmit={onSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} className="rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+              brief
+            </p>
+            <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ink)]">
+              여행 브리핑
+            </h2>
+          </div>
+          <p className="max-w-sm text-sm leading-relaxed text-[var(--muted)]">
+            누구와, 어떤 속도로, 무엇을 피하고 싶은지만 알려주세요. 나머지는 하나의 실행안으로 정리합니다.
+          </p>
+        </div>
+
+        <div className="space-y-5">
         <Field label="어디로">
           <input
             required
@@ -89,7 +104,7 @@ export function TravelForm() {
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             placeholder="예: 제주, 부산, 강릉"
-            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
+            className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
           />
         </Field>
 
@@ -100,7 +115,7 @@ export function TravelForm() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
+              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
             />
           </Field>
           <Field label="도착">
@@ -109,13 +124,21 @@ export function TravelForm() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
+              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
             />
           </Field>
         </div>
 
-        <div className="space-y-1.5">
-          <span className="block text-xs font-medium text-neutral-500">요청사항</span>
+        <div className="rounded-2xl border border-[var(--line)] bg-slate-50/70 p-4">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                context
+              </span>
+              <p className="mt-1 text-sm font-medium text-[var(--ink)]">요청사항</p>
+            </div>
+            <p className="text-xs text-[var(--muted)]">예산 · 숙소 · 구성원 · 이동수단 · 피하고 싶은 것</p>
+          </div>
           <PromptToolbar value={prompt} onChange={setPrompt} maxLength={USER_PROMPT_MAX} />
           <textarea
             value={prompt}
@@ -123,9 +146,9 @@ export function TravelForm() {
             maxLength={USER_PROMPT_MAX}
             rows={6}
             placeholder="인원·이동수단·숙소·스타일·꼭 하고 싶은 것 등을 자유롭게 써주세요. 빈 상자가 막막하면 위의 '가이드 양식' 또는 '예시 보기' 를 눌러보세요."
-            className="w-full resize-y rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
+            className="mt-3 w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--paper-strong)] px-4 py-3 text-sm leading-relaxed outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
           />
-          <div className="text-right text-xs text-neutral-400">
+          <div className="mt-1 text-right text-xs text-[var(--muted)]">
             {prompt.length} / {USER_PROMPT_MAX}
           </div>
         </div>
@@ -133,7 +156,7 @@ export function TravelForm() {
         <button
           type="submit"
           disabled={state.kind === "loading" || isCoolingDown}
-          className="w-full rounded-md bg-neutral-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
+          className="w-full rounded-xl bg-[var(--accent)] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] disabled:translate-y-0 disabled:opacity-60"
         >
           {state.kind === "loading"
             ? "계획 맞추는 중…"
@@ -141,10 +164,11 @@ export function TravelForm() {
               ? `잠시만요 (${cooldownRemainingSec}초 뒤 다시 시도)`
               : "계획 만들기"}
         </button>
+        </div>
       </form>
 
       {state.kind === "error" && (
-        <p role="status" className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/30 dark:text-amber-300">
+        <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
           {state.message}
         </p>
       )}
@@ -198,7 +222,7 @@ function friendlyErrorMessage(httpStatus: number, json: Record<string, unknown>)
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-xs font-medium text-neutral-500">{label}</span>
+      <span className="text-xs font-semibold text-[var(--muted)]">{label}</span>
       {children}
     </label>
   );

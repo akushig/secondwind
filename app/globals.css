@@ -3,7 +3,21 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --background: #eef3f8;
+  --background-soft: #f8fafc;
+  --paper: #ffffff;
+  --paper-strong: #ffffff;
+  --ink: #101828;
+  --muted: #64748b;
+  --line: #d7dee8;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: #dbeafe;
+  --route-blue: #1d4ed8;
+  --route-green: #047857;
+  --route-amber: #b45309;
+  --shadow-soft: 0 18px 45px rgb(15 23 42 / 0.09);
 }
 
 html {
@@ -12,5 +26,15 @@ html {
 }
 
 body {
+  background:
+    linear-gradient(90deg, rgb(37 99 235 / 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(37 99 235 / 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, var(--background-soft), var(--background));
+  background-size: 48px 48px, 48px 48px, auto;
+  color: var(--ink);
   line-height: 1.75;
+}
+
+::selection {
+  background: rgb(15 118 110 / 0.18);
 }

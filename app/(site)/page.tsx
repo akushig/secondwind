@@ -4,18 +4,24 @@ import { ServiceCard } from "@/components/common/service-card";
 export default function LandingPage() {
   return (
     <div className="space-y-10">
-      <section className="space-y-3">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          덜 짜도 되는 도구들
+      <section className="rounded-3xl border border-[var(--line)] bg-white p-7 shadow-[var(--shadow-soft)] sm:p-10">
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+          one studio dashboard
+        </p>
+        <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-[var(--ink)] sm:text-5xl sm:leading-tight">
+          덜 짜도 되는 도구들.
+          <br />
+          필요한 결정만 남깁니다.
         </h1>
-        <p className="max-w-prose text-neutral-600 dark:text-neutral-300">
+        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--muted)]">
           secondwind 는 3명 (지헌·태훈·덕우) 이 같이 운영하는 작은 실험장입니다.
-          각자 하나씩 서비스를 올리고, 인프라·UI·배포만 공유합니다.
+          각자 하나씩 서비스를 올리고, 인프라·UI·배포만 공유합니다. 첫 서비스는
+          여행 결정을 줄여주는 `/travel` 입니다.
         </p>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2">
-        <Link href="/travel" className="block">
+      <section className="grid gap-4 md:grid-cols-3">
+        <Link href="/travel" className="block md:col-span-2">
           <ServiceCard
             title="travel"
             owner="지헌"

@@ -15,19 +15,30 @@ export function ServiceCard({
   return (
     <div
       className={
-        "rounded-xl border p-5 transition " +
+        "group relative overflow-hidden rounded-2xl border p-5 transition sm:p-6 " +
         (ready
-          ? "border-neutral-300 hover:border-neutral-500 dark:border-neutral-700 dark:hover:border-neutral-500"
-          : "border-dashed border-neutral-200 opacity-80 dark:border-neutral-800")
+          ? "border-[var(--accent)]/30 bg-white shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:border-[var(--accent)]"
+          : "border-dashed border-[var(--line)] bg-white/70 opacity-80")
       }
     >
+      {ready && (
+        <div
+          aria-hidden
+          className="absolute right-0 top-0 h-1.5 w-full bg-[var(--accent)] transition group-hover:bg-[var(--accent-strong)]"
+        />
+      )}
       <div className="flex items-baseline justify-between">
-        <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-        <span className="text-xs text-neutral-400">{owner}</span>
+        <h3 className="relative text-lg font-semibold tracking-tight text-[var(--ink)]">{title}</h3>
+        <span className="relative rounded-full bg-white/65 px-2 py-0.5 text-xs text-[var(--muted)]">{owner}</span>
       </div>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{summary}</p>
+      <p className="relative mt-3 text-sm leading-relaxed text-[var(--muted)]">{summary}</p>
       {!ready && (
-        <p className="mt-3 text-xs uppercase tracking-wide text-neutral-400">coming soon</p>
+        <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[var(--muted)]">coming soon</p>
+      )}
+      {ready && (
+        <p className="relative mt-5 inline-flex rounded-xl bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white">
+          바로 사용 가능
+        </p>
       )}
     </div>
   );

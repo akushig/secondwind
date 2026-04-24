@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 
 export default function ExperimentThreePage() {
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">experiment-3</h1>
-      <p className="text-neutral-600 dark:text-neutral-300">
+    <div className="rounded-3xl border border-[var(--line)] bg-white p-7 shadow-[var(--shadow-soft)]">
+      <h1 className="text-2xl font-semibold tracking-tight text-[var(--ink)] sm:text-3xl">experiment-3</h1>
+      <p className="mt-3 text-[var(--muted)]">
         덕우가 만들 서비스가 들어올 자리입니다. 준비 중.
       </p>
     </div>
