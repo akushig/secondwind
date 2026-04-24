@@ -59,7 +59,7 @@ export function QuotaDebug({ lastCall }: { lastCall?: LastCall }) {
   if (!lastCall && !snapshot) return null;
 
   return (
-    <aside className="mt-8 space-y-3 rounded-2xl border border-dashed border-[var(--line)] bg-[var(--paper)]/45 p-3 text-xs text-[var(--muted)]">
+    <aside className="mt-8 space-y-3 rounded-xl border border-dashed border-[var(--line)] bg-white/70 p-3 text-xs text-[var(--muted)]">
       <p className="text-[10px] uppercase tracking-wider text-[var(--muted)]">디버그 (임시)</p>
 
       {lastCall && (

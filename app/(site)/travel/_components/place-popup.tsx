@@ -69,7 +69,7 @@ export function PlacePopup({ item, onClose }: Props) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-[var(--paper)] shadow-2xl sm:rounded-3xl"
+        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl"
       >
         <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-4">
           <div className="min-w-0 flex-1">
@@ -86,7 +86,7 @@ export function PlacePopup({ item, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="shrink-0 rounded-full p-1.5 text-[var(--muted)] transition hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
+            className="shrink-0 rounded-lg p-1.5 text-[var(--muted)] transition hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -95,11 +95,11 @@ export function PlacePopup({ item, onClose }: Props) {
         {hasGeo ? (
           <div
             ref={mapRef}
-            className="h-64 w-full bg-white/70"
+            className="h-64 w-full bg-slate-100"
             aria-label="위치 지도"
           />
         ) : (
-          <div className="bg-white/55 p-4 text-xs leading-relaxed text-[var(--muted)]">
+          <div className="bg-slate-50 p-4 text-xs leading-relaxed text-[var(--muted)]">
             정확한 위치를 확인하지 못했어요. 아래 카카오맵 링크에서 <b>&quot;{item.place_query ?? item.text}&quot;</b> 검색 결과를 확인해보세요.
           </div>
         )}
@@ -134,7 +134,7 @@ export function PlacePopup({ item, onClose }: Props) {
               href={kakaoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center rounded-2xl border border-[var(--line)] bg-white/80 py-2 text-xs font-medium text-[var(--ink)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
+              className="flex w-full items-center justify-center rounded-xl border border-[var(--line)] bg-white py-2 text-xs font-medium text-[var(--ink)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
             >
               카카오맵에서 열기 (길찾기·거리뷰)
             </a>

@@ -3,10 +3,10 @@ import { ServiceCard } from "@/components/common/service-card";
 
 export default function LandingPage() {
   return (
-    <div className="space-y-12">
-      <section className="rounded-[2rem] border border-[var(--line)] bg-[var(--paper)]/75 p-7 shadow-[var(--shadow-soft)] sm:p-10">
+    <div className="space-y-10">
+      <section className="rounded-3xl border border-[var(--line)] bg-white p-7 shadow-[var(--shadow-soft)] sm:p-10">
         <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-          three small tools, one shared studio
+          one studio dashboard
         </p>
         <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-[var(--ink)] sm:text-5xl sm:leading-tight">
           덜 짜도 되는 도구들.

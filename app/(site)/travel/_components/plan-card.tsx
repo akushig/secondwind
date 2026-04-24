@@ -21,8 +21,8 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
   const firstDay = plan.days[0]?.label ?? "여행";
 
   return (
-    <article className="space-y-7 rounded-[2rem] border border-[var(--accent)]/25 bg-[var(--paper)] p-5 shadow-[var(--shadow-soft)] sm:p-7">
-      <header className="rounded-3xl bg-white/65 p-5">
+    <article className="space-y-7 rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
+      <header className="rounded-2xl border border-[var(--line)] bg-slate-50 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
           이 정도면 됩니다
         </p>
@@ -81,7 +81,7 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
       <BudgetSection plan={plan} budget={budget} />
 
       {plan.caveats.length > 0 && (
-        <ul className="rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-xs leading-relaxed text-amber-900">
+        <ul className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs leading-relaxed text-amber-900">
           {plan.caveats.map((c, i) => (
             <li key={i}>· {c}</li>
           ))}
@@ -103,7 +103,7 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
 
 function SummaryPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper)] px-3 py-2">
+    <div className="rounded-xl border border-[var(--line)] bg-white px-3 py-2">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
         {label}
       </p>
@@ -176,7 +176,7 @@ function ItemCard({
   const pinColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
 
   return (
-    <details className="group rounded-2xl border border-[var(--line)] bg-white/65 transition open:bg-white">
+    <details className="group rounded-xl border border-[var(--line)] bg-white transition open:border-[var(--accent)]/35 open:bg-slate-50">
       <summary className="flex cursor-pointer list-none items-start gap-3 px-3 py-3 text-sm">
         <div className="flex w-12 shrink-0 flex-col items-start gap-1 pt-0.5">
           {item.time && (
@@ -209,7 +209,7 @@ function ItemCard({
             }}
             aria-label="지도에서 위치 보기"
             title="지도에서 위치 보기"
-            className="shrink-0 rounded-full border border-[var(--line)] bg-[var(--paper)] p-1.5 text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
+            className="shrink-0 rounded-lg border border-[var(--line)] bg-white p-1.5 text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
           >
             <MapPinIcon />
           </button>
@@ -276,7 +276,7 @@ function BudgetSection({
   budget: ReturnType<typeof computeBudget>;
 }) {
   return (
-    <section className="space-y-3 rounded-3xl border border-[var(--line)] bg-white/60 p-4">
+    <section className="space-y-3 rounded-2xl border border-[var(--line)] bg-slate-50 p-4">
       <div className="flex items-baseline justify-between">
         <p className="text-sm font-medium text-[var(--ink)]">예상 총 경비</p>
         <p className="text-base font-semibold text-[var(--ink)]">₩{budget.total.toLocaleString("ko-KR")}</p>
@@ -295,7 +295,7 @@ function BudgetSection({
           <summary className="cursor-pointer text-[var(--muted)] underline decoration-dotted underline-offset-4">
             세부 내역 보기
           </summary>
-          <div className="mt-2 space-y-3 rounded-2xl bg-[var(--paper)] p-3">
+          <div className="mt-2 space-y-3 rounded-xl bg-white p-3">
             {budget.activityItems.length > 0 && (
               <BudgetGroup title="활동·식사·입장">
                 {budget.activityItems.map((a, i) => (
@@ -381,11 +381,11 @@ function Estimated({
 
 function SourcesLegend() {
   return (
-    <details className="rounded-2xl border border-[var(--line)] bg-white/50 p-3 text-[11px] text-[var(--muted)]">
+    <details className="rounded-xl border border-[var(--line)] bg-slate-50 p-3 text-[11px] text-[var(--muted)]">
       <summary className="cursor-pointer select-none underline decoration-dotted underline-offset-4">
         정보 출처 · 정확도
       </summary>
-      <div className="mt-2 space-y-1.5 rounded-2xl bg-[var(--paper)] p-3">
+      <div className="mt-2 space-y-1.5 rounded-xl bg-white p-3">
         <p>
           <span className="underline decoration-dotted decoration-[var(--accent)] underline-offset-2">
             점선 밑줄

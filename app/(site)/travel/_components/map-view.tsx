@@ -198,7 +198,7 @@ export function MapView({
       </header>
       <div
         ref={containerRef}
-        className="h-72 w-full overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--paper)]"
+        className="h-72 w-full overflow-hidden rounded-2xl border border-[var(--line)] bg-slate-100"
       />
       {(plan.days.length > 1 || plan.stay?.place) && (
         <ul className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--muted)]">

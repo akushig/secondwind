@@ -81,7 +81,7 @@ export function TravelForm() {
 
   return (
     <div className="space-y-8">
-      <form onSubmit={onSubmit} className="rounded-[2rem] border border-[var(--line)] bg-[var(--paper)]/85 p-5 shadow-[var(--shadow-soft)] sm:p-7">
+      <form onSubmit={onSubmit} className="rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -92,7 +92,7 @@ export function TravelForm() {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-[var(--muted)]">
-            정확한 숫자보다 맥락이 중요해요. 누구와, 어떤 속도로, 무엇을 피하고 싶은지만 알려주세요.
+            누구와, 어떤 속도로, 무엇을 피하고 싶은지만 알려주세요. 나머지는 하나의 실행안으로 정리합니다.
           </p>
         </div>
 
@@ -104,7 +104,7 @@ export function TravelForm() {
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             placeholder="예: 제주, 부산, 강릉"
-            className="w-full rounded-2xl border border-[var(--line)] bg-white/80 px-4 py-3 text-sm outline-none transition placeholder:text-neutral-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+            className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
           />
         </Field>
 
@@ -115,7 +115,7 @@ export function TravelForm() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-2xl border border-[var(--line)] bg-white/80 px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
             />
           </Field>
           <Field label="도착">
@@ -124,12 +124,12 @@ export function TravelForm() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-2xl border border-[var(--line)] bg-white/80 px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
             />
           </Field>
         </div>
 
-        <div className="rounded-3xl border border-[var(--line)] bg-white/55 p-4">
+        <div className="rounded-2xl border border-[var(--line)] bg-slate-50/70 p-4">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
@@ -146,7 +146,7 @@ export function TravelForm() {
             maxLength={USER_PROMPT_MAX}
             rows={6}
             placeholder="인원·이동수단·숙소·스타일·꼭 하고 싶은 것 등을 자유롭게 써주세요. 빈 상자가 막막하면 위의 '가이드 양식' 또는 '예시 보기' 를 눌러보세요."
-            className="mt-3 w-full resize-y rounded-2xl border border-[var(--line)] bg-[var(--paper-strong)] px-4 py-3 text-sm leading-relaxed outline-none transition placeholder:text-neutral-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+            className="mt-3 w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--paper-strong)] px-4 py-3 text-sm leading-relaxed outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
           />
           <div className="mt-1 text-right text-xs text-[var(--muted)]">
             {prompt.length} / {USER_PROMPT_MAX}
@@ -156,7 +156,7 @@ export function TravelForm() {
         <button
           type="submit"
           disabled={state.kind === "loading" || isCoolingDown}
-          className="w-full rounded-2xl bg-[var(--accent)] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/10 transition hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] disabled:translate-y-0 disabled:opacity-60"
+          className="w-full rounded-xl bg-[var(--accent)] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] disabled:translate-y-0 disabled:opacity-60"
         >
           {state.kind === "loading"
             ? "계획 맞추는 중…"
@@ -168,7 +168,7 @@ export function TravelForm() {
       </form>
 
       {state.kind === "error" && (
-        <p role="status" className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+        <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
           {state.message}
         </p>
       )}

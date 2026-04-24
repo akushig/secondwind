@@ -15,16 +15,16 @@ export function ServiceCard({
   return (
     <div
       className={
-        "group relative overflow-hidden rounded-3xl border p-5 transition sm:p-6 " +
+        "group relative overflow-hidden rounded-2xl border p-5 transition sm:p-6 " +
         (ready
-          ? "border-[var(--accent)]/35 bg-[var(--paper)] shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:border-[var(--accent)]"
-          : "border-dashed border-[var(--line)] bg-[var(--paper)]/45 opacity-80")
+          ? "border-[var(--accent)]/30 bg-white shadow-[var(--shadow-soft)] hover:-translate-y-0.5 hover:border-[var(--accent)]"
+          : "border-dashed border-[var(--line)] bg-white/70 opacity-80")
       }
     >
       {ready && (
         <div
           aria-hidden
-          className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[var(--accent-soft)] transition group-hover:scale-110"
+          className="absolute right-0 top-0 h-1.5 w-full bg-[var(--accent)] transition group-hover:bg-[var(--accent-strong)]"
         />
       )}
       <div className="flex items-baseline justify-between">
@@ -36,7 +36,7 @@ export function ServiceCard({
         <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[var(--muted)]">coming soon</p>
       )}
       {ready && (
-        <p className="relative mt-5 inline-flex rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white">
+        <p className="relative mt-5 inline-flex rounded-xl bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white">
           바로 사용 가능
         </p>
       )}

@@ -9,15 +9,17 @@ export const metadata: Metadata = {
 export default function TravelPage() {
   return (
     <div className="space-y-8">
-      <header className="relative overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[var(--paper)] p-7 shadow-[var(--shadow-soft)] sm:p-10">
+      <header className="relative overflow-hidden rounded-3xl border border-[var(--line)] bg-white p-7 shadow-[var(--shadow-soft)] sm:p-10">
         <div
           aria-hidden
-          className="absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[var(--accent-soft)]"
+          className="absolute inset-x-0 top-0 h-1.5 bg-[var(--accent)]"
         />
         <div
           aria-hidden
-          className="absolute bottom-8 right-8 hidden h-24 w-36 rotate-[-8deg] rounded-3xl border border-[var(--line)] bg-white/55 sm:block"
-        />
+          className="absolute right-8 top-8 hidden rounded-2xl border border-[var(--line)] bg-slate-50 px-4 py-3 text-xs text-[var(--muted)] sm:block"
+        >
+          확정안 중심 · 국내 여행 v0
+        </div>
         <div className="relative max-w-2xl">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
             travel concierge
@@ -32,7 +34,7 @@ export default function TravelPage() {
             선택지는 숨기고 바로 실행할 수 있는 하나의 확정안을 만듭니다.
           </p>
         </div>
-        <p className="relative mt-6 inline-flex rounded-full border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--accent-strong)]">
+        <p className="relative mt-6 inline-flex rounded-xl border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--accent-strong)]">
           지금은 국내 여행을 더 잘 맞춥니다. 해외 여행은 다음 이터레이션에서 지원 예정.
         </p>
       </header>
