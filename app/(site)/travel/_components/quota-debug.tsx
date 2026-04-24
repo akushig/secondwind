@@ -59,20 +59,20 @@ export function QuotaDebug({ lastCall }: { lastCall?: LastCall }) {
   if (!lastCall && !snapshot) return null;
 
   return (
-    <aside className="mt-8 space-y-3 rounded-md border border-dashed border-neutral-300 bg-neutral-50/60 p-3 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400">
-      <p className="text-[10px] uppercase tracking-wider text-neutral-400">디버그 (임시)</p>
+    <aside className="mt-8 space-y-3 rounded-2xl border border-dashed border-[var(--line)] bg-[var(--paper)]/45 p-3 text-xs text-[var(--muted)]">
+      <p className="text-[10px] uppercase tracking-wider text-[var(--muted)]">디버그 (임시)</p>
 
       {lastCall && (
         <section>
-          <p className="text-[10px] uppercase tracking-wider text-neutral-400">이번 요청 토큰</p>
+          <p className="text-[10px] uppercase tracking-wider text-[var(--muted)]">이번 요청 토큰</p>
           <p className="mt-1 font-mono">
-            <span className="text-neutral-500">{lastCall.model}</span>
+            <span className="text-[var(--muted)]">{lastCall.model}</span>
             {" · "}
             입력 {lastCall.prompt.toLocaleString()} + 출력 {lastCall.output.toLocaleString()}
             {typeof lastCall.thoughts === "number" &&
               ` (thinking ${lastCall.thoughts.toLocaleString()})`}
             {" = "}
-            <span className="font-semibold text-neutral-700 dark:text-neutral-200">
+            <span className="font-semibold text-[var(--ink)]">
               {lastCall.total.toLocaleString()}
             </span>{" "}
             토큰
@@ -82,7 +82,7 @@ export function QuotaDebug({ lastCall }: { lastCall?: LastCall }) {
 
       {snapshot?.configured === true && (
         <section className="space-y-1" key={tick}>
-          <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+          <p className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
             서버 쿼터 (Upstash 누적 · free tier)
           </p>
           <div className="space-y-1 font-mono">
@@ -90,19 +90,19 @@ export function QuotaDebug({ lastCall }: { lastCall?: LastCall }) {
               <ModelLine key={m.model} m={m} />
             ))}
             <div>
-              <span className="text-neutral-500">TPM 합계</span>
+              <span className="text-[var(--muted)]">TPM 합계</span>
               {" · "}
               <Bar used={snapshot.tpmUsed} limit={snapshot.tpmLimit} />
             </div>
           </div>
-          <p className="pt-0.5 text-[10px] text-neutral-400">
+          <p className="pt-0.5 text-[10px] text-[var(--muted)]">
             RPM/TPM = 최근 60초 · RPD = 마지막 Pacific 자정 이후 (한국시간 오후 리셋, DST 에 따라 16-17시)
           </p>
         </section>
       )}
 
       {snapshot?.configured === false && (
-        <p className="text-[10px] text-neutral-400">
+        <p className="text-[10px] text-[var(--muted)]">
           서버 쿼터 추적 미설정 (Upstash Redis 미연결). 이번 요청 토큰만 표시됨.
         </p>
       )}
@@ -114,7 +114,7 @@ function ModelLine({ m }: { m: ModelSnapshot }) {
   return (
     <div className="space-y-0.5">
       <div>
-        <span className="text-neutral-500">{m.model}</span>
+        <span className="text-[var(--muted)]">{m.model}</span>
         {" · RPM "}
         <Bar used={m.rpmUsed} limit={m.rpmLimit} />
         {" · RPD "}
@@ -132,7 +132,7 @@ function ModelLine({ m }: { m: ModelSnapshot }) {
 function BlockedBadge({ dim, info }: { dim: QuotaDim; info: BlockedInfo }) {
   const remainingMs = Math.max(0, info.until - Date.now());
   return (
-    <div className="pl-4 text-[11px] text-rose-600 dark:text-rose-400">
+    <div className="pl-4 text-[11px] text-rose-600">
       ⚠ {dim.toUpperCase()} 서버 소진 — 약 {formatDuration(remainingMs)} 뒤 복구 예상
     </div>
   );
@@ -151,10 +151,10 @@ function Bar({ used, limit }: { used: number; limit: number }) {
   const pct = Math.min(1, used / limit);
   const tone =
     pct < 0.5
-      ? "text-neutral-600 dark:text-neutral-300"
+      ? "text-[var(--muted)]"
       : pct < 0.9
-        ? "text-amber-600 dark:text-amber-400"
-        : "text-rose-600 dark:text-rose-400";
+        ? "text-amber-700"
+        : "text-rose-600";
   return (
     <span className={tone}>
       {used.toLocaleString()}/{limit.toLocaleString()} (남음 {remaining.toLocaleString()})

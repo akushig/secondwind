@@ -3,7 +3,21 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --background: #f5efe3;
+  --background-soft: #fbf7ee;
+  --paper: #fffaf0;
+  --paper-strong: #ffffff;
+  --ink: #252018;
+  --muted: #71695d;
+  --line: #ded2bf;
+  --accent: #0f766e;
+  --accent-strong: #0f5f59;
+  --accent-soft: #d7f0e7;
+  --route-blue: #1d4ed8;
+  --route-green: #047857;
+  --route-amber: #b45309;
+  --shadow-soft: 0 24px 70px rgb(78 60 36 / 0.13);
 }
 
 html {
@@ -12,5 +26,14 @@ html {
 }
 
 body {
+  background:
+    radial-gradient(circle at top left, rgb(15 118 110 / 0.13), transparent 34rem),
+    radial-gradient(circle at 88% 8%, rgb(180 83 9 / 0.12), transparent 30rem),
+    linear-gradient(180deg, var(--background-soft), var(--background));
+  color: var(--ink);
   line-height: 1.75;
+}
+
+::selection {
+  background: rgb(15 118 110 / 0.18);
 }

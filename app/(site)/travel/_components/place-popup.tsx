@@ -69,15 +69,15 @@ export function PlacePopup({ item, onClose }: Props) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-xl bg-white shadow-xl dark:bg-neutral-900 sm:rounded-xl"
+        className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-[var(--paper)] shadow-2xl sm:rounded-3xl"
       >
-        <div className="flex items-start justify-between gap-3 border-b border-neutral-200 p-4 dark:border-neutral-800">
+        <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-4">
           <div className="min-w-0 flex-1">
-            <h2 className="truncate text-base font-semibold leading-tight text-neutral-900 dark:text-neutral-100">
+            <h2 className="truncate text-base font-semibold leading-tight text-[var(--ink)]">
               {title}
             </h2>
             {place?.category && (
-              <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
                 {place.category}
               </p>
             )}
@@ -86,7 +86,7 @@ export function PlacePopup({ item, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="shrink-0 rounded-md p-1 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+            className="shrink-0 rounded-full p-1.5 text-[var(--muted)] transition hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -95,11 +95,11 @@ export function PlacePopup({ item, onClose }: Props) {
         {hasGeo ? (
           <div
             ref={mapRef}
-            className="h-64 w-full bg-neutral-100 dark:bg-neutral-800"
+            className="h-64 w-full bg-white/70"
             aria-label="위치 지도"
           />
         ) : (
-          <div className="bg-neutral-50 p-4 text-xs leading-relaxed text-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-300">
+          <div className="bg-white/55 p-4 text-xs leading-relaxed text-[var(--muted)]">
             정확한 위치를 확인하지 못했어요. 아래 카카오맵 링크에서 <b>&quot;{item.place_query ?? item.text}&quot;</b> 검색 결과를 확인해보세요.
           </div>
         )}
@@ -108,17 +108,17 @@ export function PlacePopup({ item, onClose }: Props) {
           <dl className="space-y-2 p-4 text-sm">
             {place?.address && (
               <div className="flex gap-3">
-                <dt className="w-10 shrink-0 text-xs text-neutral-400">주소</dt>
-                <dd className="flex-1 text-neutral-700 dark:text-neutral-300">{place.address}</dd>
+                <dt className="w-10 shrink-0 text-xs text-[var(--muted)]">주소</dt>
+                <dd className="flex-1 text-[var(--ink)]">{place.address}</dd>
               </div>
             )}
             {place?.phone && (
               <div className="flex gap-3">
-                <dt className="w-10 shrink-0 text-xs text-neutral-400">전화</dt>
+                <dt className="w-10 shrink-0 text-xs text-[var(--muted)]">전화</dt>
                 <dd className="flex-1">
                   <a
                     href={`tel:${place.phone}`}
-                    className="text-neutral-700 underline underline-offset-2 dark:text-neutral-300"
+                    className="text-[var(--ink)] underline underline-offset-2"
                   >
                     {place.phone}
                   </a>
@@ -129,12 +129,12 @@ export function PlacePopup({ item, onClose }: Props) {
         )}
 
         {kakaoUrl && (
-          <div className="border-t border-neutral-200 p-3 dark:border-neutral-800">
+          <div className="border-t border-[var(--line)] p-3">
             <a
               href={kakaoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center rounded-md border border-neutral-300 bg-white py-2 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              className="flex w-full items-center justify-center rounded-2xl border border-[var(--line)] bg-white/80 py-2 text-xs font-medium text-[var(--ink)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
             >
               카카오맵에서 열기 (길찾기·거리뷰)
             </a>

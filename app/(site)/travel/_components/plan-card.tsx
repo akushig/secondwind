@@ -18,20 +18,28 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
   const labelByItem = new Map(enumeratePoints(plan).map((p) => [p.item, p.label]));
   const [legsByItem, setLegsByItem] = useState<LegsByItem | null>(null);
   const [mapItem, setMapItem] = useState<TravelItem | null>(null);
+  const firstDay = plan.days[0]?.label ?? "여행";
 
   return (
-    <article className="space-y-6 rounded-xl border border-neutral-300 p-5 dark:border-neutral-700">
-      <header className="space-y-2">
-        <p className="text-xs uppercase tracking-wide text-neutral-400">이 정도면 됩니다</p>
+    <article className="space-y-7 rounded-[2rem] border border-[var(--accent)]/25 bg-[var(--paper)] p-5 shadow-[var(--shadow-soft)] sm:p-7">
+      <header className="rounded-3xl bg-white/65 p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+          이 정도면 됩니다
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <SummaryPill label="일정" value={`${firstDay}부터 ${plan.days.length}일`} />
+          <SummaryPill label="장소" value={`${enumeratePoints(plan).length}곳`} />
+          <SummaryPill label="예상 경비" value={`₩${budget.total.toLocaleString("ko-KR")}`} />
+        </div>
         {plan.stay && (
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            🏨 {plan.stay.name}
+          <p className="mt-4 text-sm text-[var(--muted)]">
+            <span className="font-medium text-[var(--ink)]">숙소 기준점</span> · {plan.stay.name}
             {plan.stay.place?.name && plan.stay.place.name !== plan.stay.name && (
-              <span className="text-neutral-400 dark:text-neutral-500"> · {plan.stay.place.name}</span>
+              <span className="text-[var(--muted)]"> · {plan.stay.place.name}</span>
             )}
           </p>
         )}
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted)]">
           {plan.rationale}
         </p>
       </header>
@@ -41,7 +49,14 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
       <ol className="space-y-6">
         {plan.days.map((day, dayIdx) => (
           <li key={dayIdx} className="space-y-2">
-            <h3 className="text-sm font-semibold">{day.label}</h3>
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--ink)]">
+              <span
+                aria-hidden
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ background: DAY_COLORS[dayIdx % DAY_COLORS.length] }}
+              />
+              {day.label}
+            </h3>
             <ol className="space-y-1.5">
               {day.items.map((item, j) => (
                 <Fragment key={j}>
@@ -66,7 +81,7 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
       <BudgetSection plan={plan} budget={budget} />
 
       {plan.caveats.length > 0 && (
-        <ul className="space-y-1 text-xs text-neutral-500">
+        <ul className="rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-xs leading-relaxed text-amber-900">
           {plan.caveats.map((c, i) => (
             <li key={i}>· {c}</li>
           ))}
@@ -76,13 +91,24 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
       <SourcesLegend />
 
       {model && (
-        <p className="text-right text-[10px] text-neutral-400 dark:text-neutral-500">
+        <p className="text-right text-[10px] text-[var(--muted)]">
           생성 모델: {model}
         </p>
       )}
 
       <PlacePopup item={mapItem} onClose={() => setMapItem(null)} />
     </article>
+  );
+}
+
+function SummaryPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper)] px-3 py-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+        {label}
+      </p>
+      <p className="mt-0.5 text-sm font-semibold text-[var(--ink)]">{value}</p>
+    </div>
   );
 }
 
@@ -99,9 +125,9 @@ function TransitRow({ transit, osrmLeg }: { transit: TransitInfo; osrmLeg?: Osrm
   return (
     <li
       aria-label="이동"
-      className="flex items-center gap-2 pl-14 pr-3 text-[11px] text-neutral-500 dark:text-neutral-400"
+      className="flex items-center gap-2 pl-14 pr-3 text-[11px] text-[var(--muted)]"
     >
-      <span aria-hidden className="block h-3 w-px bg-neutral-300 dark:bg-neutral-700" />
+      <span aria-hidden className="block h-3 w-px bg-[var(--line)]" />
       <span>
         <Estimated>{transit.mode}</Estimated>{" "}
         {useOsrm ? (
@@ -150,11 +176,11 @@ function ItemCard({
   const pinColor = DAY_COLORS[dayIndex % DAY_COLORS.length];
 
   return (
-    <details className="group rounded-lg border border-neutral-200 open:bg-neutral-50 dark:border-neutral-800 dark:open:bg-neutral-900/50">
-      <summary className="flex cursor-pointer list-none items-start gap-3 px-3 py-2.5 text-sm">
+    <details className="group rounded-2xl border border-[var(--line)] bg-white/65 transition open:bg-white">
+      <summary className="flex cursor-pointer list-none items-start gap-3 px-3 py-3 text-sm">
         <div className="flex w-12 shrink-0 flex-col items-start gap-1 pt-0.5">
           {item.time && (
-            <span className="font-mono text-xs text-neutral-500">{item.time}</span>
+            <span className="font-mono text-xs text-[var(--muted)]">{item.time}</span>
           )}
           {label && (
             <span
@@ -169,7 +195,7 @@ function ItemCard({
         <span className="flex-1 leading-korean">
           {item.text}
           {item.place?.name && !item.text.includes(item.place.name) && (
-            <span className="text-neutral-500 dark:text-neutral-400"> · {item.place.name}</span>
+            <span className="text-[var(--muted)]"> · {item.place.name}</span>
           )}
         </span>
         {hasLocation && (
@@ -183,7 +209,7 @@ function ItemCard({
             }}
             aria-label="지도에서 위치 보기"
             title="지도에서 위치 보기"
-            className="shrink-0 rounded border border-neutral-300 p-1 text-neutral-500 transition hover:text-neutral-900 dark:border-neutral-700 dark:hover:text-neutral-100"
+            className="shrink-0 rounded-full border border-[var(--line)] bg-[var(--paper)] p-1.5 text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
           >
             <MapPinIcon />
           </button>
@@ -191,7 +217,7 @@ function ItemCard({
         {hasDetail && (
           <span
             aria-hidden
-            className="ml-1 shrink-0 pt-0.5 text-xs text-neutral-400 transition-transform group-open:rotate-180"
+            className="ml-1 shrink-0 pt-0.5 text-xs text-[var(--muted)] transition-transform group-open:rotate-180"
           >
             ▾
           </span>
@@ -199,7 +225,7 @@ function ItemCard({
       </summary>
 
       {hasDetail && (
-        <dl className="space-y-1 border-t border-neutral-200 px-3 py-2 pl-16 text-xs text-neutral-600 dark:border-neutral-800 dark:text-neutral-300">
+        <dl className="space-y-1 border-t border-[var(--line)] px-3 py-3 pl-16 text-xs text-[var(--muted)]">
           {addr && (
             <Row label="주소">
               <span>{addr}</span>
@@ -236,7 +262,7 @@ function ItemCard({
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="inline w-14 text-neutral-400">{label} </dt>
+      <dt className="inline w-14 text-[var(--muted)]/75">{label} </dt>
       <dd className="inline">{children}</dd>
     </div>
   );
@@ -250,13 +276,13 @@ function BudgetSection({
   budget: ReturnType<typeof computeBudget>;
 }) {
   return (
-    <section className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+    <section className="space-y-3 rounded-3xl border border-[var(--line)] bg-white/60 p-4">
       <div className="flex items-baseline justify-between">
-        <p className="text-sm font-medium">예상 총 경비</p>
-        <p className="text-base font-semibold">₩{budget.total.toLocaleString("ko-KR")}</p>
+        <p className="text-sm font-medium text-[var(--ink)]">예상 총 경비</p>
+        <p className="text-base font-semibold text-[var(--ink)]">₩{budget.total.toLocaleString("ko-KR")}</p>
       </div>
 
-      <dl className="space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
+      <dl className="space-y-1 text-xs text-[var(--muted)]">
         <BudgetLine label="활동·식사·입장 합계" amount={budget.activity} />
         <BudgetLine label="이동 비용 합계" amount={budget.transit} />
         {plan.budget.extras.map((e, i) => (
@@ -266,10 +292,10 @@ function BudgetSection({
 
       {(budget.activityItems.length > 0 || budget.transitItems.length > 0 || plan.budget.extras.length > 0) && (
         <details className="text-xs">
-          <summary className="cursor-pointer text-neutral-500 underline decoration-dotted underline-offset-4">
+          <summary className="cursor-pointer text-[var(--muted)] underline decoration-dotted underline-offset-4">
             세부 내역 보기
           </summary>
-          <div className="mt-2 space-y-3 rounded-md bg-neutral-50 p-3 dark:bg-neutral-900/50">
+          <div className="mt-2 space-y-3 rounded-2xl bg-[var(--paper)] p-3">
             {budget.activityItems.length > 0 && (
               <BudgetGroup title="활동·식사·입장">
                 {budget.activityItems.map((a, i) => (
@@ -310,7 +336,7 @@ function BudgetLine({ label, amount }: { label: string; amount: number }) {
   if (amount <= 0) return null;
   return (
     <div className="flex items-baseline justify-between">
-      <dt className="text-neutral-500">{label}</dt>
+      <dt className="text-[var(--muted)]">{label}</dt>
       <dd>₩{amount.toLocaleString("ko-KR")}</dd>
     </div>
   );
@@ -319,8 +345,8 @@ function BudgetLine({ label, amount }: { label: string; amount: number }) {
 function BudgetGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{title}</p>
-      <ul className="space-y-0.5 text-neutral-600 dark:text-neutral-300">{children}</ul>
+      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">{title}</p>
+      <ul className="space-y-0.5 text-[var(--muted)]">{children}</ul>
     </div>
   );
 }
@@ -346,7 +372,7 @@ function Estimated({
   return (
     <span
       title={hint}
-      className="underline decoration-dotted decoration-neutral-400 underline-offset-2 text-neutral-500 dark:text-neutral-400"
+      className="text-[var(--muted)] underline decoration-dotted decoration-[var(--accent)] underline-offset-2"
     >
       {children}
     </span>
@@ -355,13 +381,13 @@ function Estimated({
 
 function SourcesLegend() {
   return (
-    <details className="text-[11px] text-neutral-500 dark:text-neutral-400">
+    <details className="rounded-2xl border border-[var(--line)] bg-white/50 p-3 text-[11px] text-[var(--muted)]">
       <summary className="cursor-pointer select-none underline decoration-dotted underline-offset-4">
         정보 출처 · 정확도
       </summary>
-      <div className="mt-2 space-y-1.5 rounded-md bg-neutral-50 p-3 dark:bg-neutral-900/50">
+      <div className="mt-2 space-y-1.5 rounded-2xl bg-[var(--paper)] p-3">
         <p>
-          <span className="underline decoration-dotted decoration-neutral-400 underline-offset-2">
+          <span className="underline decoration-dotted decoration-[var(--accent)] underline-offset-2">
             점선 밑줄
           </span>{" "}
           이 있는 값은 AI 가 추정한 값이에요. 실제와 다를 수 있으니 참고용으로만 보세요.

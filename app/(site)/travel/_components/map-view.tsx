@@ -193,15 +193,15 @@ export function MapView({
   return (
     <section className="space-y-2">
       <header className="flex items-baseline justify-between">
-        <h3 className="text-sm font-semibold">전체 경로</h3>
-        <span className="text-xs text-neutral-400">{statusText}</span>
+        <h3 className="text-sm font-semibold text-[var(--ink)]">전체 경로</h3>
+        <span className="text-xs text-[var(--muted)]">{statusText}</span>
       </header>
       <div
         ref={containerRef}
-        className="h-72 w-full overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900"
+        className="h-72 w-full overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--paper)]"
       />
       {(plan.days.length > 1 || plan.stay?.place) && (
-        <ul className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500">
+        <ul className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--muted)]">
           {plan.days.length > 1 &&
             plan.days.map((day, i) => (
               <li key={i} className="flex items-center gap-1.5">

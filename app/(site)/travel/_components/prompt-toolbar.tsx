@@ -100,12 +100,12 @@ export function PromptToolbar({ value, onChange, maxLength }: Props) {
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <button
           type="button"
           onClick={handleTemplate}
           title="라벨만 있는 빈 양식을 삽입"
-          className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-600 transition hover:bg-neutral-50 hover:text-neutral-900 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-neutral-100"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--paper)] px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
         >
           <ListPlus className="h-3.5 w-3.5" aria-hidden />
           <span>가이드 양식</span>
@@ -115,10 +115,10 @@ export function PromptToolbar({ value, onChange, maxLength }: Props) {
           onClick={() => setExamplesOpen((v) => !v)}
           aria-expanded={examplesOpen}
           title="완성된 예시 프롬프트 5개 보기"
-          className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs transition ${
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
             examplesOpen
-              ? "border-neutral-500 bg-neutral-100 text-neutral-900 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-100"
-              : "border-neutral-300 text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-neutral-100"
+              ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+              : "border-[var(--line)] bg-[var(--paper)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]"
           }`}
         >
           <Lightbulb className="h-3.5 w-3.5" aria-hidden />
@@ -127,22 +127,22 @@ export function PromptToolbar({ value, onChange, maxLength }: Props) {
       </div>
 
       {examplesOpen && (
-        <div className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            카드를 클릭하면 예시가 그대로 삽입됩니다. 상황에 맞게 편집하세요.
+        <div className="space-y-3 rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-3">
+          <p className="text-xs leading-relaxed text-[var(--muted)]">
+            카드를 클릭하면 예시가 그대로 삽입됩니다. 그대로 시작한 뒤 예산이나 이동수단만 바꿔도 충분해요.
           </p>
-          <ul className="space-y-2">
+          <ul className="grid gap-2 sm:grid-cols-2">
             {EXAMPLES.map((ex) => (
               <li key={ex.title}>
                 <button
                   type="button"
                   onClick={() => handleExample(ex.body)}
-                  className="block w-full rounded-md border border-neutral-200 bg-white p-3 text-left transition hover:border-neutral-400 dark:border-neutral-800 dark:bg-neutral-950/40 dark:hover:border-neutral-600"
+                  className="block h-full w-full rounded-2xl border border-[var(--line)] bg-white/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:shadow-sm"
                 >
-                  <div className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                  <div className="text-xs font-semibold text-[var(--ink)]">
                     {ex.title}
                   </div>
-                  <div className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
+                  <div className="mt-1.5 line-clamp-4 whitespace-pre-wrap text-xs leading-relaxed text-[var(--muted)]">
                     {ex.body}
                   </div>
                 </button>
