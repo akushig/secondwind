@@ -50,6 +50,21 @@ export type TravelPlan = {
 
 export const USER_PROMPT_MAX = 1000;
 
+export function normalizeTravelInput(raw: unknown): TravelInput | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  const destination = typeof r.destination === "string" ? r.destination.trim().slice(0, 80) : "";
+  const startDate = typeof r.startDate === "string" ? r.startDate : "";
+  const endDate = typeof r.endDate === "string" ? r.endDate : "";
+  const prompt = typeof r.prompt === "string" ? r.prompt.trim().slice(0, USER_PROMPT_MAX) : "";
+
+  if (!destination) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) return null;
+  if (new Date(endDate) < new Date(startDate)) return null;
+
+  return { destination, startDate, endDate, prompt };
+}
+
 const SYSTEM_PROMPT = `당신은 J 강박이 있는 한국인 여행자를 돕는 계획자입니다.
 규칙:
 - 하나의 확정 계획만 제시. 대안·옵션 언급 금지.
@@ -252,7 +267,7 @@ function isStay(v: unknown): v is Stay {
   return true;
 }
 
-function isTravelPlan(v: unknown): v is TravelPlan {
+export function isTravelPlan(v: unknown): v is TravelPlan {
   if (typeof v !== "object" || v === null) return false;
   const p = v as Record<string, unknown>;
   if (typeof p.rationale !== "string") return false;
