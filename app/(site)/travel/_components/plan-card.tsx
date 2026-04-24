@@ -4,6 +4,7 @@ import { Fragment, useState } from "react";
 import {
   computeBudget,
   enumeratePoints,
+  type TravelInput,
   type TransitInfo,
   type TravelItem,
   type TravelPlan,
@@ -13,7 +14,15 @@ import { PlacePopup } from "./place-popup";
 
 const DAY_COLORS = ["#2563eb", "#059669", "#d97706", "#db2777", "#7c3aed", "#0d9488", "#c026d3"];
 
-export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) {
+export function PlanCard({
+  plan,
+  model,
+  shareInput,
+}: {
+  plan: TravelPlan;
+  model?: string;
+  shareInput?: TravelInput;
+}) {
   const budget = computeBudget(plan);
   const labelByItem = new Map(enumeratePoints(plan).map((p) => [p.item, p.label]));
   const [legsByItem, setLegsByItem] = useState<LegsByItem | null>(null);
@@ -43,6 +52,8 @@ export function PlanCard({ plan, model }: { plan: TravelPlan; model?: string }) 
           {plan.rationale}
         </p>
       </header>
+
+      {shareInput && <ShareSection input={shareInput} plan={plan} model={model} />}
 
       <MapView plan={plan} onLegsLoaded={setLegsByItem} />
 
@@ -110,6 +121,122 @@ function SummaryPill({ label, value }: { label: string; value: string }) {
       <p className="mt-0.5 text-sm font-semibold text-[var(--ink)]">{value}</p>
     </div>
   );
+}
+
+type ShareState =
+  | { kind: "idle" }
+  | { kind: "saving" }
+  | { kind: "ok"; url: string; expiresAt: string; copied: boolean }
+  | { kind: "error"; message: string };
+
+function ShareSection({
+  input,
+  plan,
+  model,
+}: {
+  input: TravelInput;
+  plan: TravelPlan;
+  model?: string;
+}) {
+  const [state, setState] = useState<ShareState>({ kind: "idle" });
+
+  async function createShare() {
+    setState({ kind: "saving" });
+    try {
+      const res = await fetch("/api/travel/share", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ input, plan, model }),
+      });
+      const json = (await res.json()) as Record<string, unknown>;
+      if (!res.ok || json.status !== "ok" || typeof json.url !== "string") {
+        setState({ kind: "error", message: friendlyShareError(json) });
+        return;
+      }
+      const url = new URL(json.url, window.location.origin).toString();
+      const expiresAt = typeof json.expiresAt === "string" ? json.expiresAt : "";
+      setState({ kind: "ok", url, expiresAt, copied: false });
+    } catch {
+      setState({ kind: "error", message: "공유 링크를 만들지 못했습니다. 잠시 후 다시 시도해주세요." });
+    }
+  }
+
+  async function copyShare(url: string, expiresAt: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      setState({ kind: "ok", url, expiresAt, copied: true });
+    } catch {
+      setState({ kind: "ok", url, expiresAt, copied: false });
+    }
+  }
+
+  return (
+    <section className="space-y-2 rounded-2xl border border-[var(--line)] bg-slate-50 p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-medium text-[var(--ink)]">공유 링크</p>
+          <p className="text-xs text-[var(--muted)]">
+            입력값과 여행 계획을 7일 동안 같은 모습으로 복원합니다.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={createShare}
+          disabled={state.kind === "saving"}
+          className="rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] transition hover:border-[var(--accent)] disabled:opacity-60"
+        >
+          {state.kind === "saving" ? "만드는 중..." : "링크 만들기"}
+        </button>
+      </div>
+
+      {state.kind === "ok" && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <a
+            href={state.url}
+            className="min-w-0 flex-1 truncate rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-xs text-[var(--ink)] underline underline-offset-2"
+          >
+            {state.url}
+          </a>
+          <button
+            type="button"
+            onClick={() => copyShare(state.url, state.expiresAt)}
+            className="rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] transition hover:border-[var(--accent)]"
+          >
+            {state.copied ? "복사됨" : "복사"}
+          </button>
+          {state.expiresAt && (
+            <span className="text-[11px] text-[var(--muted)]">
+              {formatExpiresAt(state.expiresAt)} 만료
+            </span>
+          )}
+        </div>
+      )}
+
+      {state.kind === "error" && (
+        <p role="status" className="text-xs text-amber-800">
+          {state.message}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function friendlyShareError(json: Record<string, unknown>): string {
+  if (json.status === "not-configured") {
+    return "공유 저장소가 아직 연결되지 않았습니다.";
+  }
+  return "공유 링크를 만들지 못했습니다. 잠시 후 다시 시도해주세요.";
+}
+
+function formatExpiresAt(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 // mode 에 "차량"·"택시"·"자동차"·"렌터" 중 하나라도 포함되면 OSRM driving 결과로 덮어쓰기 가능.

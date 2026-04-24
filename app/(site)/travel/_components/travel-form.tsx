@@ -18,12 +18,25 @@ type FormState =
 
 const ERROR_COOLDOWN_MS = 10_000;
 
-export function TravelForm() {
-  const [destination, setDestination] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [state, setState] = useState<FormState>({ kind: "idle" });
+export function TravelForm({
+  initialInput,
+  initialPlan,
+  initialModel,
+}: {
+  initialInput?: TravelInput;
+  initialPlan?: TravelPlan;
+  initialModel?: string;
+}) {
+  const [destination, setDestination] = useState(initialInput?.destination ?? "");
+  const [startDate, setStartDate] = useState(initialInput?.startDate ?? "");
+  const [endDate, setEndDate] = useState(initialInput?.endDate ?? "");
+  const [prompt, setPrompt] = useState(initialInput?.prompt ?? "");
+  const [state, setState] = useState<FormState>(
+    initialPlan ? { kind: "ok", plan: initialPlan, model: initialModel } : { kind: "idle" },
+  );
+  const [planInput, setPlanInput] = useState<TravelInput | undefined>(
+    initialPlan && initialInput ? initialInput : undefined,
+  );
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [lastCall, setLastCall] = useState<LastCall | undefined>(undefined);
@@ -63,6 +76,7 @@ export function TravelForm() {
       const model = typeof json.model === "string" ? json.model : undefined;
       const usage = extractUsage(json.usage);
       if (model && usage) setLastCall({ model, ...usage });
+      setPlanInput(input);
       setState({ kind: "ok", plan: json.plan as TravelPlan, model });
     } catch (err) {
       setState({
@@ -173,7 +187,13 @@ export function TravelForm() {
         </p>
       )}
 
-      {state.kind === "ok" && <PlanCard plan={state.plan} model={state.model} />}
+      {state.kind === "ok" && (
+        <PlanCard
+          plan={state.plan}
+          model={state.model}
+          shareInput={planInput}
+        />
+      )}
 
       <QuotaDebug lastCall={lastCall} />
     </div>
