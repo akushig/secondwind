@@ -2,6 +2,13 @@
 
 secondwind 의 주요 변경 사항을 기록합니다. 날짜 포맷은 `YYYY-MM-DD`, 버전은 4자리 `MAJOR.MINOR.PATCH.MICRO`.
 
+## [0.1.9.1] - 2026-04-25
+
+### Changed
+- `/travel` 의 기본 추천 방식인 `균형형` 에 장소 repair pass 추가. 최초 지도 검증에서 실패한 `place_query` 를 최대 6개까지 낮은 temperature 의 보조 LLM 패스로 더 검색 가능한 단일 POI 명으로 고친 뒤 다시 Naver 위치 보강을 실행.
+- repair pass 의 추가 토큰 사용량과 rate-limit hit 를 API 응답 통계에 합산하고, 실제 좌표가 붙은 repair 수를 `placeStats.repairedPlaces` 로 표시.
+- 좋은 대체 장소명을 찾지 못하면 잘못된 지도 핀을 세우는 대신 `place_query` 를 비워 장소 확인 필요 상태로 남김.
+
 ## [0.1.9.0] - 2026-04-25
 
 ### Added
