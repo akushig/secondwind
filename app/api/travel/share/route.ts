@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   isTravelPlan,
-  normalizeTravelInput,
+  validateTravelInput,
   type TravelInput,
   type TravelPlan,
 } from "@/lib/common/services/travel";
@@ -23,10 +23,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: "error", reason: "invalid-json" }, { status: 400 });
   }
 
-  const input = normalizeTravelInput(body.input);
-  if (!input || !isTravelPlan(body.plan)) {
-    return NextResponse.json({ status: "error", reason: "invalid-input" }, { status: 400 });
+  const validation = validateTravelInput(body.input);
+  if (!validation.ok) {
+    return NextResponse.json({ status: "error", reason: validation.reason }, { status: 400 });
   }
+  if (!isTravelPlan(body.plan)) {
+    return NextResponse.json({ status: "error", reason: "invalid-plan" }, { status: 400 });
+  }
+  const input = validation.input;
 
   const model = typeof body.model === "string" ? body.model : undefined;
 

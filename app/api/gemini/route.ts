@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { RateLimitHit } from "@/lib/common/llm";
 import {
-  normalizeTravelInput,
+  validateTravelInput,
   type TravelInput,
 } from "@/lib/common/services/travel";
 import { runTravelPlanner } from "@/lib/common/services/travel-planners";
@@ -24,10 +24,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: "error", reason: "unknown-service" }, { status: 400 });
   }
 
-  const input = normalizeTravelInput(body.input);
-  if (!input) {
-    return NextResponse.json({ status: "error", reason: "invalid-input" }, { status: 400 });
+  const validation = validateTravelInput(body.input);
+  if (!validation.ok) {
+    return NextResponse.json({ status: "error", reason: validation.reason }, { status: 400 });
   }
+  const input = validation.input;
 
   const result = await runTravelPlanner(input);
 

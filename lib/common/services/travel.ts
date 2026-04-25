@@ -100,8 +100,26 @@ export type TravelPlan = {
 
 export const USER_PROMPT_MAX = 1000;
 
+export type TravelInputValidationReason =
+  | "invalid-shape"
+  | "missing-destination"
+  | "missing-start-date"
+  | "missing-end-date"
+  | "invalid-start-date"
+  | "invalid-end-date"
+  | "end-before-start";
+
+export type TravelInputValidationResult =
+  | { ok: true; input: TravelInput }
+  | { ok: false; reason: TravelInputValidationReason };
+
 export function normalizeTravelInput(raw: unknown): TravelInput | null {
-  if (typeof raw !== "object" || raw === null) return null;
+  const result = validateTravelInput(raw);
+  return result.ok ? result.input : null;
+}
+
+export function validateTravelInput(raw: unknown): TravelInputValidationResult {
+  if (typeof raw !== "object" || raw === null) return { ok: false, reason: "invalid-shape" };
   const r = raw as Record<string, unknown>;
   const destination = typeof r.destination === "string" ? r.destination.trim().slice(0, 80) : "";
   const startDate = typeof r.startDate === "string" ? r.startDate : "";
@@ -109,11 +127,20 @@ export function normalizeTravelInput(raw: unknown): TravelInput | null {
   const prompt = typeof r.prompt === "string" ? r.prompt.trim().slice(0, USER_PROMPT_MAX) : "";
   const planningModel = parsePlanningModel(r.planningModel);
 
-  if (!destination) return null;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) return null;
-  if (new Date(endDate) < new Date(startDate)) return null;
+  if (!destination) return { ok: false, reason: "missing-destination" };
+  if (!startDate) return { ok: false, reason: "missing-start-date" };
+  if (!endDate) return { ok: false, reason: "missing-end-date" };
+  if (!isValidDateString(startDate)) return { ok: false, reason: "invalid-start-date" };
+  if (!isValidDateString(endDate)) return { ok: false, reason: "invalid-end-date" };
+  if (endDate < startDate) return { ok: false, reason: "end-before-start" };
 
-  return { destination, startDate, endDate, prompt, planningModel };
+  return { ok: true, input: { destination, startDate, endDate, prompt, planningModel } };
+}
+
+function isValidDateString(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 export function parsePlanningModel(raw: unknown): PlanningModel {
