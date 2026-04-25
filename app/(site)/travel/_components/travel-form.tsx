@@ -6,9 +6,11 @@ import {
   PLANNING_MODELS,
   USER_PROMPT_MAX,
   parsePlanningModel,
+  validateTravelInput,
   type PlaceStats,
   type PlanningModel,
   type TravelInput,
+  type TravelInputValidationReason,
   type TravelPlan,
 } from "@/lib/common/services/travel";
 import { PlanCard } from "./plan-card";
@@ -73,13 +75,22 @@ export function TravelForm({
     e.preventDefault();
     if (isCoolingDown) return;
     const input: TravelInput = { destination, startDate, endDate, prompt, planningModel };
+    const validation = validateTravelInput(input);
+    if (!validation.ok) {
+      setState({
+        kind: "error",
+        message: travelInputErrorMessage(validation.reason) ?? "입력값을 다시 확인해주세요.",
+      });
+      return;
+    }
+    const checkedInput = validation.input;
     setState({ kind: "loading" });
 
     try {
       const res = await fetch("/api/gemini", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ service: "travel", input }),
+        body: JSON.stringify({ service: "travel", input: checkedInput }),
       });
       const json = (await res.json()) as Record<string, unknown>;
 
@@ -93,7 +104,7 @@ export function TravelForm({
       const placeStats = extractPlaceStats(json.placeStats);
       const usage = extractUsage(json.usage);
       if (model && usage) setLastCall({ model, ...usage });
-      setPlanInput(input);
+      setPlanInput(checkedInput);
       setState({
         kind: "ok",
         plan: json.plan as TravelPlan,
@@ -316,10 +327,27 @@ function friendlyErrorMessage(httpStatus: number, json: Record<string, unknown>)
   if (status === "invalid-response") {
     return "받은 플랜을 이해하지 못했어요. 요청 사항을 조금 구체화하고 다시 시도해주세요.";
   }
+  const inputMessage = travelInputErrorMessage(reason);
+  if (inputMessage) return inputMessage;
   if (reason === "invalid-json" || reason === "invalid-input" || reason === "unknown-service") {
     return "입력값을 다시 확인해주세요.";
   }
   return `계획 생성 실패 (${reason || httpStatus || "unknown"})`;
+}
+
+function travelInputErrorMessage(reason: unknown): string | undefined {
+  const messages: Record<TravelInputValidationReason, string> = {
+    "invalid-shape": "입력값을 다시 확인해주세요.",
+    "missing-destination": "목적지를 입력해주세요.",
+    "missing-start-date": "출발일을 선택해주세요.",
+    "missing-end-date": "도착일을 선택해주세요.",
+    "invalid-start-date": "출발일 형식을 다시 확인해주세요.",
+    "invalid-end-date": "도착일 형식을 다시 확인해주세요.",
+    "end-before-start": "도착일은 출발일과 같거나 더 늦어야 합니다.",
+  };
+  return typeof reason === "string" && reason in messages
+    ? messages[reason as TravelInputValidationReason]
+    : undefined;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
