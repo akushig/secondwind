@@ -46,6 +46,7 @@ Options:
   --models <list>      Comma-separated models. Default: ${PLANNING_MODELS.join(",")}
   --out <dir>          Snapshot output dir. Default: ${DEFAULT_OUT_DIR}
   --no-write           Print summary without writing a snapshot.
+  --strict             Exit non-zero when any run fails. Default: write snapshot and continue.
   --help               Show this help.
 
 Golden cases:
@@ -61,6 +62,7 @@ function parseArgs(argv) {
     models: PLANNING_MODELS,
     outDir: DEFAULT_OUT_DIR,
     write: true,
+    strict: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -94,6 +96,10 @@ function parseArgs(argv) {
     }
     if (arg === "--no-write") {
       args.write = false;
+      continue;
+    }
+    if (arg === "--strict") {
+      args.strict = true;
       continue;
     }
     throw new Error(`Unknown option: ${arg}`);
@@ -316,7 +322,20 @@ async function main() {
   }
 
   const summary = summarize(results);
+  const errors = results
+    .filter((r) => r.status !== "ok")
+    .map((r) => ({
+      caseId: r.caseId,
+      model: r.planningModel,
+      run: r.run,
+      httpStatus: r.httpStatus,
+      reason: r.error?.reason ?? "unknown",
+    }));
   console.table(summary);
+  if (errors.length > 0) {
+    console.log("Errors:");
+    console.table(errors);
+  }
 
   const snapshot = {
     createdAt: new Date().toISOString(),
@@ -325,6 +344,7 @@ async function main() {
     cases: cases.map((c) => ({ ...c })),
     models: args.models,
     summary,
+    errors,
     results,
   };
 
@@ -333,7 +353,7 @@ async function main() {
     console.log(`Snapshot written: ${file}`);
   }
 
-  if (results.some((r) => r.status !== "ok")) {
+  if (args.strict && errors.length > 0) {
     process.exitCode = 1;
   }
 }

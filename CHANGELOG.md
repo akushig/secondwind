@@ -9,6 +9,7 @@ secondwind 의 주요 변경 사항을 기록합니다. 날짜 포맷은 `YYYY-M
 - 생성 후 정리 단계에서 `체크인` · `체크아웃` · `낮잠` · `숙소 복귀/휴식` 항목의 `place_query` 를 더 확실히 제거해 숙소 부속 카페/식당으로 잘못 매칭되는 경우를 줄임.
 - 지도 검색 결과가 없는 `place_query` 도 `place_warning` 으로 표시해 결과 상단의 `확인 필요` 숫자가 실제 미확인 장소를 반영하도록 수정.
 - `npm run eval:travel` snapshot 에 각 item 의 `placeQuery` · 매칭 장소명 · 업종 · 주소 · warning 을 담는 `placeAudit` 를 추가해 다음 튜닝에서 실패 원인을 바로 볼 수 있게 함.
+- `npm run eval:travel` 은 기본적으로 일부 모델 호출이 429 등으로 실패해도 snapshot 과 에러 테이블을 남기고 종료하도록 조정. 실패를 CI 처럼 엄격히 다루고 싶을 때는 `--strict` 사용.
 
 ## [0.1.9.3] - 2026-04-25
 
