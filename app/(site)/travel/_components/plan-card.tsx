@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import {
   computeBudget,
   enumeratePoints,
@@ -28,6 +29,25 @@ export function PlanCard({
   const [legsByItem, setLegsByItem] = useState<LegsByItem | null>(null);
   const [mapItem, setMapItem] = useState<TravelItem | null>(null);
   const firstDay = plan.days[0]?.label ?? "여행";
+  const confirmationKey = useMemo(() => buildConfirmationKey(plan, shareInput), [plan, shareInput]);
+  const [confirmed, setConfirmed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setConfirmed(window.localStorage.getItem(confirmationKey) === "true");
+    } catch {
+      setConfirmed(false);
+    }
+  }, [confirmationKey]);
+
+  function confirmPlan() {
+    try {
+      window.localStorage.setItem(confirmationKey, "true");
+    } catch {
+      // 저장이 막힌 브라우저에서도 현재 화면의 확정 상태는 보여준다.
+    }
+    setConfirmed(true);
+  }
 
   return (
     <article className="space-y-7 rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
@@ -52,6 +72,13 @@ export function PlanCard({
           {plan.rationale}
         </p>
       </header>
+
+      <DecisionPanel
+        plan={plan}
+        budget={budget}
+        confirmed={confirmed}
+        onConfirm={confirmPlan}
+      />
 
       {shareInput && <ShareSection input={shareInput} plan={plan} model={model} />}
 
@@ -110,6 +137,184 @@ export function PlanCard({
       <PlacePopup item={mapItem} onClose={() => setMapItem(null)} />
     </article>
   );
+}
+
+function buildConfirmationKey(plan: TravelPlan, input?: TravelInput): string {
+  const source = JSON.stringify({
+    path: typeof window === "undefined" ? "" : window.location.pathname,
+    input,
+    rationale: plan.rationale,
+    days: plan.days.map((day) => ({
+      label: day.label,
+      items: day.items.map((item) => [item.time, item.text, item.place_query]),
+    })),
+  });
+  return `secondwind:travel:confirmed:${stableHash(source)}`;
+}
+
+function stableHash(value: string): string {
+  let hash = 5381;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 33) ^ value.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function DecisionPanel({
+  plan,
+  budget,
+  confirmed,
+  onConfirm,
+}: {
+  plan: TravelPlan;
+  budget: ReturnType<typeof computeBudget>;
+  confirmed: boolean;
+  onConfirm: () => void;
+}) {
+  const summary = buildDecisionSummary(plan, budget);
+
+  return (
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--paper-strong)] p-4 sm:p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+              decision
+            </p>
+            {confirmed && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                <CheckCircle2 aria-hidden className="h-3 w-3" />
+                확정됨
+              </span>
+            )}
+          </div>
+          <h3 className="mt-1 text-lg font-semibold tracking-tight text-[var(--ink)]">
+            이 일정으로 가도 되는 이유
+          </h3>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+            긴 일정을 다시 훑기 전에, 결정에 필요한 것만 먼저 확인하세요.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={confirmed}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] disabled:translate-y-0 disabled:bg-emerald-600 disabled:opacity-90"
+        >
+          <CheckCircle2 aria-hidden className="h-4 w-4" />
+          {confirmed ? "확정 완료" : "이 일정으로 확정"}
+        </button>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        <DecisionColumn title="좋은 점" items={summary.goodReasons} />
+        <DecisionColumn title="확인 필요" items={summary.checkBeforeConfirming} tone="warning" />
+        <DecisionColumn title="확정 후 할 일" items={summary.todoAfterConfirming} checklist={confirmed} />
+      </div>
+
+      {!confirmed && (
+        <p className="mt-4 text-xs text-[var(--muted)]">
+          확정하면 이 브라우저에서 완료 상태가 저장되고, 출발 전 확인할 일을 체크리스트로 볼 수 있어요.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function DecisionColumn({
+  title,
+  items,
+  tone = "default",
+  checklist = false,
+}: {
+  title: string;
+  items: string[];
+  tone?: "default" | "warning";
+  checklist?: boolean;
+}) {
+  return (
+    <section className="rounded-xl border border-[var(--line)] bg-white p-3">
+      <h4 className="text-sm font-semibold text-[var(--ink)]">{title}</h4>
+      <ul className="mt-2 space-y-2 text-xs leading-relaxed text-[var(--muted)]">
+        {items.map((item, i) => (
+          <li key={`${title}-${i}`} className="flex gap-2">
+            {checklist ? (
+              <input
+                type="checkbox"
+                aria-label={item}
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-[var(--line)] text-[var(--accent)]"
+              />
+            ) : (
+              <span
+                aria-hidden
+                className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
+                  tone === "warning" ? "bg-amber-400" : "bg-[var(--accent)]"
+                }`}
+              />
+            )}
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function buildDecisionSummary(
+  plan: TravelPlan,
+  budget: ReturnType<typeof computeBudget>,
+): {
+  goodReasons: string[];
+  checkBeforeConfirming: string[];
+  todoAfterConfirming: string[];
+} {
+  const allItems = plan.days.flatMap((day) => day.items);
+  const locatedCount = allItems.filter((item) => item.place).length;
+  const warningCount = allItems.filter((item) => item.place_warning).length;
+  const transitCount = allItems.filter((item) => item.transit).length;
+  const mealCount = allItems.filter((item) => /점심|저녁|식사|브런치|맛집|식당|카페/.test(item.text)).length;
+
+  const goodReasons = uniqueNonEmpty([
+    ...(plan.decision?.good_reasons ?? []),
+    plan.stay ? `숙소 기준점 "${plan.stay.name}"을 중심으로 동선을 판단할 수 있습니다.` : "",
+    mealCount > 0 ? `식사와 휴식 지점을 일정 안에 함께 배치했습니다.` : "",
+    transitCount > 0 ? `장소 사이 이동 시간과 수단을 함께 표시합니다.` : "",
+  ]).slice(0, 3);
+
+  const checkBeforeConfirming = uniqueNonEmpty([
+    ...(plan.decision?.check_before_confirming ?? []),
+    warningCount > 0 ? `위치 확인 필요 표시가 있는 장소 ${warningCount}곳은 방문 전 지도에서 다시 확인하세요.` : "",
+    locatedCount > 0 ? `주소와 전화는 ${locatedCount}곳이 Naver 지역검색으로 확인되었습니다.` : "",
+    budget.total > 0 ? `예상 총 경비 ₩${budget.total.toLocaleString("ko-KR")}는 참고용입니다.` : "",
+    ...plan.caveats,
+  ]).slice(0, 4);
+
+  const todoAfterConfirming = uniqueNonEmpty([
+    ...(plan.decision?.todo_after_confirming ?? []),
+    plan.stay ? "숙소 예약 여부와 체크인 시간을 확인하기" : "숙소 예약 여부를 확인하기",
+    "첫 식사 장소의 영업시간과 휴무일 확인하기",
+    "이동편, 렌터카, 주차 같은 교통 준비 상태 확인하기",
+    "동행자에게 공유 링크 보내기",
+  ]).slice(0, 5);
+
+  return {
+    goodReasons: goodReasons.length > 0 ? goodReasons : ["요청한 목적지와 기간에 맞춰 하나의 실행 가능한 일정으로 정리했습니다."],
+    checkBeforeConfirming: checkBeforeConfirming.length > 0 ? checkBeforeConfirming : ["영업시간, 가격, 메뉴는 방문 전 한 번 더 확인하세요."],
+    todoAfterConfirming,
+  };
+}
+
+function uniqueNonEmpty(items: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of items) {
+    const normalized = item.trim();
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    out.push(normalized);
+  }
+  return out;
 }
 
 function SummaryPill({ label, value }: { label: string; value: string }) {
