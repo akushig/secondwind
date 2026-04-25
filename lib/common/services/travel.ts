@@ -147,6 +147,85 @@ export function buildTravelPrompt(input: TravelInput): { system: string; user: s
   return { system: SYSTEM_PROMPT, user: userPrompt };
 }
 
+// Gemini responseSchema (OpenAPI 3.0 subset). isTravelPlan 의 type guard 와 1:1 대응.
+// 둘 중 하나만 바꾸면 LLM 출력이 통과해도 런타임 검증에서 떨어지거나 그 반대가 되니,
+// 필드 추가/삭제 시 양쪽을 같이 수정할 것.
+export const TRAVEL_PLAN_SCHEMA = {
+  type: "object",
+  properties: {
+    rationale: { type: "string" },
+    stay: {
+      type: "object",
+      properties: { name: { type: "string" } },
+      required: ["name"],
+    },
+    decision: {
+      type: "object",
+      properties: {
+        good_reasons: { type: "array", items: { type: "string" } },
+        check_before_confirming: { type: "array", items: { type: "string" } },
+        todo_after_confirming: { type: "array", items: { type: "string" } },
+      },
+      required: ["good_reasons", "check_before_confirming", "todo_after_confirming"],
+    },
+    days: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          label: { type: "string" },
+          items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                text: { type: "string" },
+                time: { type: "string" },
+                place_query: { type: "string" },
+                place_warning: { type: "string" },
+                cost_krw: { type: "number" },
+                cost_label: { type: "string" },
+                recommended_menu: { type: "string" },
+                transit: {
+                  type: "object",
+                  properties: {
+                    mode: { type: "string" },
+                    duration_min: { type: "number" },
+                    cost_krw: { type: "number" },
+                    note: { type: "string" },
+                  },
+                  required: ["mode", "duration_min"],
+                },
+              },
+              required: ["text"],
+            },
+          },
+        },
+        required: ["label", "items"],
+      },
+    },
+    budget: {
+      type: "object",
+      properties: {
+        extras: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              label: { type: "string" },
+              krw: { type: "number" },
+            },
+            required: ["label", "krw"],
+          },
+        },
+      },
+      required: ["extras"],
+    },
+    caveats: { type: "array", items: { type: "string" } },
+  },
+  required: ["rationale", "days", "budget", "caveats"],
+} as const;
+
 export function parseTravelPlan(raw: string): TravelPlan | null {
   const trimmed = raw.trim().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
   let parsed: unknown;

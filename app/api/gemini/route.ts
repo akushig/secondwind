@@ -4,6 +4,7 @@ import {
   buildTravelPrompt,
   normalizeTravelInput,
   parseTravelPlan,
+  TRAVEL_PLAN_SCHEMA,
   type TravelInput,
 } from "@/lib/common/services/travel";
 import { enrichPlan } from "@/lib/common/services/travel-enrich";
@@ -32,7 +33,13 @@ export async function POST(req: Request) {
   }
 
   const { system, user } = buildTravelPrompt(input);
-  const result = await callLlm({ system, user, maxTokens: 6144 });
+  const result = await callLlm({
+    system,
+    user,
+    // 3박+많은 item+긴 rationale 케이스에서 6144 가 빡빡해 truncation 이 났던 정황이 있어 8192 로 상향.
+    maxTokens: 8192,
+    responseSchema: TRAVEL_PLAN_SCHEMA,
+  });
 
   // KV 에 rate-limit 소진 기록 (fire-and-forget).
   if ("rateLimitHits" in result && result.rateLimitHits) {

@@ -2,6 +2,12 @@
 
 secondwind 의 주요 변경 사항을 기록합니다. 날짜 포맷은 `YYYY-MM-DD`, 버전은 4자리 `MAJOR.MINOR.PATCH.MICRO`.
 
+## [0.1.8.1] - 2026-04-25
+
+### Changed
+- `/travel` 의 Gemini 호출에 `responseSchema` (constrained decoding) 적용. 이전엔 system prompt 의 자연어 부탁만으로 JSON 형식을 지키게 했어서 가끔 필드 누락·타입 불일치로 "받은 플랜을 이해하지 못했어요" 에러가 떠짐. schema 강제로 (B) 부류 파싱 실패가 디코더 레벨에서 차단됨. 사용자 자유 입력 (`prompt`) 의 자연어 유연성과 출력의 자연어 슬롯 (`rationale`, `caveats`, `decision.*`) 은 그대로 유지.
+- `maxOutputTokens` 6144 → 8192 로 상향. 3박+많은 item+긴 rationale 케이스에서 cap 에 닿아 출력이 잘리던 truncation 의 마진 확보.
+
 ## [0.1.8.0] - 2026-04-25
 
 ### Added
