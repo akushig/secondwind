@@ -157,7 +157,7 @@ export function TravelForm({
 
   return (
     <div className="space-y-8">
-      <form onSubmit={onSubmit} className="rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
+      <form onSubmit={onSubmit} className="rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -173,160 +173,171 @@ export function TravelForm({
         </div>
 
         <div className="space-y-5">
-        <Field label="어디로">
-          <input
-            required
-            maxLength={80}
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            placeholder="예: 제주, 부산, 강릉"
-            className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
-          />
-        </Field>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="출발">
+          <Field label="어디로">
             <input
               required
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
-            />
-          </Field>
-          <Field label="도착">
-            <input
-              required
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
-            />
-          </Field>
-        </div>
-
-        <section className="space-y-3 rounded-2xl border border-[var(--line)] bg-slate-50/70 p-4">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-            <div>
-              <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                budget
-              </span>
-              <p className="mt-1 text-sm font-medium text-[var(--ink)]">
-                예산 <span className="text-xs font-normal text-[var(--muted)]">(선택)</span>
-              </p>
-            </div>
-            <p className="text-xs text-[var(--muted)]">초과되면 결과 화면에서 알려드려요</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={formatBudgetDisplay(budgetInput)}
-              onChange={(e) => setBudgetInput(e.target.value.replace(/[^0-9]/g, ""))}
-              placeholder="예: 1,000,000"
+              maxLength={80}
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              placeholder="예: 제주, 부산, 강릉"
               className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
             />
-            <span className="shrink-0 text-sm text-[var(--muted)]">원</span>
-          </div>
-          <fieldset className="space-y-2">
-            <legend className="text-xs font-semibold text-[var(--muted)]">이 예산에 포함되는 것</legend>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {BUDGET_SCOPES.map((opt) => (
-                <label
-                  key={opt.id}
-                  className={`block cursor-pointer rounded-xl border p-2.5 text-xs transition ${
-                    budgetScope === opt.id
-                      ? "border-[var(--accent)] bg-[var(--accent-soft)]"
-                      : "border-[var(--line)] bg-white hover:border-[var(--accent)]"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="budgetScope"
-                    value={opt.id}
-                    checked={budgetScope === opt.id}
-                    onChange={() => setBudgetScope(opt.id)}
-                    className="sr-only"
-                  />
-                  <span className="block text-sm font-semibold text-[var(--ink)]">{opt.label}</span>
-                  <span className="mt-0.5 block text-[var(--muted)]">{opt.hint}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        </section>
+          </Field>
 
-        <section className="space-y-3">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold text-[var(--muted)]">추천 방식</p>
-              <p className="mt-1 text-xs text-[var(--muted)]">
-                속도와 장소 검증 강도를 골라 여행 계획을 만듭니다.
-              </p>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="출발">
+              <input
+                required
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+              />
+            </Field>
+            <Field label="도착">
+              <input
+                required
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+              />
+            </Field>
           </div>
-          <div className="grid overflow-hidden rounded-xl border border-[var(--line)] bg-white md:grid-cols-3">
-            {PLANNING_MODELS.map((option) => (
-              <label
-                key={option.id}
-                className={`block cursor-pointer border-b border-[var(--line)] p-3 transition last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0 ${
-                  planningModel === option.id
-                    ? "bg-[var(--accent-soft)]"
-                    : "hover:bg-slate-50"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="planningModel"
-                  value={option.id}
-                  checked={planningModel === option.id}
-                  onChange={() => setPlanningModel(option.id)}
-                  className="sr-only"
-                />
-                <span className="block text-sm font-semibold text-[var(--ink)]">{option.label}</span>
-                <span className="mt-1 block text-xs leading-relaxed text-[var(--muted)]">
-                  {option.description}
+
+          <div className="rounded-2xl border border-[var(--line)] bg-slate-50/70 p-4">
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                  context
                 </span>
-              </label>
-            ))}
-          </div>
-        </section>
-
-        <div className="rounded-2xl border border-[var(--line)] bg-slate-50/70 p-4">
-          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                context
-              </span>
-              <p className="mt-1 text-sm font-medium text-[var(--ink)]">요청사항</p>
+                <p className="mt-1 text-sm font-medium text-[var(--ink)]">요청사항</p>
+              </div>
+              <p className="text-xs text-[var(--muted)]">숙소 · 구성원 · 이동수단 · 피하고 싶은 것</p>
             </div>
-            <p className="text-xs text-[var(--muted)]">예산 · 숙소 · 구성원 · 이동수단 · 피하고 싶은 것</p>
+            <PromptToolbar value={prompt} onChange={setPrompt} maxLength={USER_PROMPT_MAX} />
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value.slice(0, USER_PROMPT_MAX))}
+              maxLength={USER_PROMPT_MAX}
+              rows={6}
+              placeholder="인원·이동수단·숙소·스타일·꼭 하고 싶은 것 등을 자유롭게 써주세요. 빈 상자가 막막하면 위의 '가이드 양식' 또는 '예시 보기' 를 눌러보세요."
+              className="mt-3 w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--paper-strong)] px-4 py-3 text-sm leading-relaxed outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+            />
+            <div className="mt-1 text-right text-xs text-[var(--muted)]">
+              {prompt.length} / {USER_PROMPT_MAX}
+            </div>
           </div>
-          <PromptToolbar value={prompt} onChange={setPrompt} maxLength={USER_PROMPT_MAX} />
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value.slice(0, USER_PROMPT_MAX))}
-            maxLength={USER_PROMPT_MAX}
-            rows={6}
-            placeholder="인원·이동수단·숙소·스타일·꼭 하고 싶은 것 등을 자유롭게 써주세요. 빈 상자가 막막하면 위의 '가이드 양식' 또는 '예시 보기' 를 눌러보세요."
-            className="mt-3 w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--paper-strong)] px-4 py-3 text-sm leading-relaxed outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
-          />
-          <div className="mt-1 text-right text-xs text-[var(--muted)]">
-            {prompt.length} / {USER_PROMPT_MAX}
-          </div>
-        </div>
 
-        <button
-          type="submit"
-          disabled={state.kind === "loading" || isCoolingDown}
-          className="w-full rounded-xl bg-[var(--accent)] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] disabled:translate-y-0 disabled:opacity-60"
-        >
-          {state.kind === "loading"
-            ? "계획 맞추는 중…"
-            : isCoolingDown
-              ? `잠시만요 (${cooldownRemainingSec}초 뒤 다시 시도)`
-              : "계획 만들기"}
-        </button>
+          <details
+            open={Boolean(budgetInput) || planningModel !== DEFAULT_PLANNING_MODEL}
+            className="rounded-2xl border border-[var(--line)] bg-white"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-[var(--ink)]">
+              <span>선택 옵션</span>
+              <span className="text-xs font-normal text-[var(--muted)]">
+                예산 · 추천 방식
+              </span>
+            </summary>
+            <div className="space-y-5 border-t border-[var(--line)] p-4">
+              <section className="space-y-3">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                  <div>
+                    <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                      budget
+                    </span>
+                    <p className="mt-1 text-sm font-medium text-[var(--ink)]">
+                      예산 <span className="text-xs font-normal text-[var(--muted)]">(선택)</span>
+                    </p>
+                  </div>
+                  <p className="text-xs text-[var(--muted)]">초과되면 결과 화면에서 알려드려요</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={formatBudgetDisplay(budgetInput)}
+                    onChange={(e) => setBudgetInput(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="예: 1,000,000"
+                    className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]"
+                  />
+                  <span className="shrink-0 text-sm text-[var(--muted)]">원</span>
+                </div>
+                <fieldset className="space-y-2">
+                  <legend className="text-xs font-semibold text-[var(--muted)]">이 예산에 포함되는 것</legend>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    {BUDGET_SCOPES.map((opt) => (
+                      <label
+                        key={opt.id}
+                        className={`block cursor-pointer rounded-xl border p-2.5 text-xs transition ${
+                          budgetScope === opt.id
+                            ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+                            : "border-[var(--line)] bg-white hover:border-[var(--accent)]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="budgetScope"
+                          value={opt.id}
+                          checked={budgetScope === opt.id}
+                          onChange={() => setBudgetScope(opt.id)}
+                          className="sr-only"
+                        />
+                        <span className="block text-sm font-semibold text-[var(--ink)]">{opt.label}</span>
+                        <span className="mt-0.5 block text-[var(--muted)]">{opt.hint}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </section>
+
+              <section className="space-y-3">
+                <div>
+                  <p className="text-xs font-semibold text-[var(--muted)]">추천 방식</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">
+                    기본값은 속도와 장소 검증의 균형을 맞춘 방식입니다.
+                  </p>
+                </div>
+                <div className="grid overflow-hidden rounded-xl border border-[var(--line)] bg-white md:grid-cols-3">
+                  {PLANNING_MODELS.map((option) => (
+                    <label
+                      key={option.id}
+                      className={`block cursor-pointer border-b border-[var(--line)] p-3 transition last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0 ${
+                        planningModel === option.id
+                          ? "bg-[var(--accent-soft)]"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="planningModel"
+                        value={option.id}
+                        checked={planningModel === option.id}
+                        onChange={() => setPlanningModel(option.id)}
+                        className="sr-only"
+                      />
+                      <span className="block text-sm font-semibold text-[var(--ink)]">{option.label}</span>
+                      <span className="mt-1 block text-xs leading-relaxed text-[var(--muted)]">
+                        {option.description}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </details>
+
+          <button
+            type="submit"
+            disabled={state.kind === "loading" || isCoolingDown}
+            className="w-full rounded-xl bg-[var(--accent)] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:-translate-y-0.5 hover:bg-[var(--accent-strong)] disabled:translate-y-0 disabled:opacity-60"
+          >
+            {state.kind === "loading"
+              ? "계획 맞추는 중…"
+              : isCoolingDown
+                ? `잠시만요 (${cooldownRemainingSec}초 뒤 다시 시도)`
+                : "계획 만들기"}
+          </button>
         </div>
       </form>
 

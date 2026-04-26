@@ -23,30 +23,30 @@ export function TravelHero({
   badge?: ReactNode;
 }) {
   return (
-    <header className="relative overflow-hidden rounded-3xl border border-[var(--line)] bg-white p-7 shadow-[var(--shadow-soft)] sm:p-10">
+    <header className="relative overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-1.5 bg-[var(--accent)]"
       />
       <div
         aria-hidden
-        className="absolute right-8 top-8 hidden rounded-2xl border border-[var(--line)] bg-slate-50 px-4 py-3 text-xs text-[var(--muted)] sm:block"
+        className="absolute right-6 top-6 hidden rounded-xl border border-[var(--line)] bg-slate-50 px-3 py-2 text-xs text-[var(--muted)] lg:block"
       >
         확정안 중심 · 국내 여행 v0
       </div>
       <div className="relative max-w-2xl">
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
           {eyebrow}
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--ink)] sm:text-5xl sm:leading-tight">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--ink)] sm:text-4xl sm:leading-tight">
           {title}
         </h1>
-        <p className="mt-5 text-base leading-relaxed text-[var(--muted)]">
+        <p className="mt-3 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
           {description}
         </p>
       </div>
       {badge && (
-        <p className="relative mt-6 inline-flex rounded-xl border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--accent-strong)]">
+        <p className="relative mt-4 inline-flex rounded-xl border border-[var(--accent)]/25 bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--accent-strong)]">
           {badge}
         </p>
       )}
