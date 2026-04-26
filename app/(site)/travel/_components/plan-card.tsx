@@ -109,13 +109,6 @@ export function PlanCard({
         onConfirm={confirmPlan}
       />
 
-      {shareInput && (
-        <>
-          <ShareSection input={shareInput} plan={plan} model={model} />
-          <FeedbackSection input={shareInput} plan={plan} model={model} />
-        </>
-      )}
-
       <MapView plan={plan} onLegsLoaded={setLegsByItem} />
 
       <ol className="space-y-6">
@@ -161,6 +154,21 @@ export function PlanCard({
       )}
 
       <SourcesLegend />
+
+      {shareInput && (
+        <section className="space-y-3">
+          <ShareSection input={shareInput} plan={plan} model={model} />
+          <details>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-slate-50 px-4 py-3 text-sm font-medium text-[var(--ink)]">
+              <span>피드백 · 버그리포트</span>
+              <span className="text-xs font-normal text-[var(--muted)]">문제가 있을 때 열기</span>
+            </summary>
+            <div className="mt-3">
+              <FeedbackSection input={shareInput} plan={plan} model={model} />
+            </div>
+          </details>
+        </section>
+      )}
 
       {model && (
         <p className="text-right text-[10px] text-[var(--muted)]">
