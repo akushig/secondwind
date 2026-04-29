@@ -513,9 +513,35 @@ export function parseTravelPlan(raw: string): TravelPlan | null {
   } catch {
     return null;
   }
+  // Flash Lite 가 decision 의 세 배열 중 하나만 누락한 채 응답하는 경우가 관찰됨.
+  // schema 가 셋 다 required 지만 모델이 종종 어김. plan 전체를 거절하지 말고,
+  // decision 만 정규화해서 통과시킨다 (UI 는 이미 ?? [] 로 fallback 처리됨).
+  normalizePartialDecision(parsed);
   if (!isTravelPlan(parsed)) return null;
   sanitizeGeneratedPlan(parsed);
   return parsed;
+}
+
+function normalizePartialDecision(parsed: unknown): void {
+  if (typeof parsed !== "object" || parsed === null) return;
+  const obj = parsed as Record<string, unknown>;
+  if (!("decision" in obj)) return;
+  const raw = obj.decision;
+  if (raw === undefined || raw === null) {
+    delete obj.decision;
+    return;
+  }
+  if (typeof raw !== "object") {
+    delete obj.decision;
+    return;
+  }
+  const d = raw as Record<string, unknown>;
+  const normalized: DecisionSummary = {
+    good_reasons: isStringArray(d.good_reasons) ? d.good_reasons : [],
+    check_before_confirming: isStringArray(d.check_before_confirming) ? d.check_before_confirming : [],
+    todo_after_confirming: isStringArray(d.todo_after_confirming) ? d.todo_after_confirming : [],
+  };
+  obj.decision = normalized;
 }
 
 function sanitizeGeneratedPlan(plan: TravelPlan): void {
