@@ -23,18 +23,30 @@ import { PlacePopup } from "./place-popup";
 
 const DAY_COLORS = ["#2563eb", "#059669", "#d97706", "#db2777", "#7c3aed", "#0d9488", "#c026d3"];
 
+type PreviousSnapshot = {
+  plan: TravelPlan;
+  input: TravelInput;
+  model?: string;
+  planningModel: PlanningModel;
+  placeStats?: PlaceStats;
+};
+
 export function PlanCard({
   plan,
   model,
   planningModel,
   placeStats,
   shareInput,
+  previousSlot,
+  onSwapToPrevious,
 }: {
   plan: TravelPlan;
   model?: string;
   planningModel?: PlanningModel;
   placeStats?: PlaceStats;
   shareInput?: TravelInput;
+  previousSlot?: PreviousSnapshot;
+  onSwapToPrevious?: () => void;
 }) {
   const budget = computeBudget(plan);
   const budgetCheck = evaluateBudget(
@@ -73,6 +85,9 @@ export function PlanCard({
 
   return (
     <article className="space-y-7 rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-soft)] sm:p-7">
+      {previousSlot && onSwapToPrevious && (
+        <PreviousSlotBanner snapshot={previousSlot} onSwap={onSwapToPrevious} />
+      )}
       {budgetCheck && <BudgetOverageBanner check={budgetCheck} />}
 
       <header className="rounded-2xl border border-[var(--line)] bg-slate-50 p-5">
@@ -95,6 +110,14 @@ export function PlanCard({
               <span className="rounded-full border border-[var(--line)] bg-white px-2 py-1">
                 장소 확인: {placeStats.verifiedPlaces}/{placeStats.totalPlaceQueries}
                 {placeStats.warnings > 0 ? ` · 확인 필요 ${placeStats.warnings}` : ""}
+              </span>
+            )}
+            {placeStats && typeof placeStats.naverCalls === "number" && placeStats.naverCalls > 0 && (
+              <span
+                className="rounded-full border border-dashed border-[var(--line)] bg-white px-2 py-1"
+                title="이번 요청에서 Naver 지역검색 호출 횟수 (cache hit · 재시도 제외)"
+              >
+                Naver 호출: {placeStats.naverCalls}건
               </span>
             )}
           </div>
@@ -206,6 +229,38 @@ function stableHash(value: string): string {
     hash = (hash * 33) ^ value.charCodeAt(i);
   }
   return (hash >>> 0).toString(36);
+}
+
+function PreviousSlotBanner({
+  snapshot,
+  onSwap,
+}: {
+  snapshot: PreviousSnapshot;
+  onSwap: () => void;
+}) {
+  const dayCount = snapshot.plan.days.length;
+  const placeCount = enumeratePoints(snapshot.plan).length;
+  const total = computeBudget(snapshot.plan).total;
+  return (
+    <section
+      data-print="hide"
+      className="flex flex-col gap-2 rounded-2xl border border-dashed border-[var(--line)] bg-slate-50 p-3 text-xs text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div className="flex flex-wrap items-baseline gap-2">
+        <span className="font-medium text-[var(--ink)]">직전 결과 보존</span>
+        <span>
+          {dayCount}일 · {placeCount}곳 · ₩{total.toLocaleString("ko-KR")}
+        </span>
+      </div>
+      <button
+        type="button"
+        onClick={onSwap}
+        className="self-start rounded-xl border border-[var(--line)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--ink)] transition hover:border-[var(--accent)] sm:self-auto"
+      >
+        직전 결과로 전환
+      </button>
+    </section>
+  );
 }
 
 function BudgetOverageBanner({ check }: { check: BudgetCheck }) {

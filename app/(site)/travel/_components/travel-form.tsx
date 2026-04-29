@@ -31,6 +31,14 @@ type FormState =
   | { kind: "ok"; plan: TravelPlan; model?: string; planningModel: PlanningModel; placeStats?: PlaceStats }
   | { kind: "error"; message: string };
 
+type PreviousSlot = {
+  plan: TravelPlan;
+  input: TravelInput;
+  model?: string;
+  planningModel: PlanningModel;
+  placeStats?: PlaceStats;
+};
+
 const ERROR_COOLDOWN_MS = 10_000;
 
 export function TravelForm({
@@ -69,6 +77,9 @@ export function TravelForm({
   const [planInput, setPlanInput] = useState<TravelInput | undefined>(
     initialPlan && initialInput ? initialInput : undefined,
   );
+  // 재생성 시 직전 ok 결과 보존. 토글로 두 plan 사이 전환 가능 — 사용자가
+  // 새 결과보다 직전이 낫다고 판단하면 즉시 돌아갈 수 있다.
+  const [previousSlot, setPreviousSlot] = useState<PreviousSlot | undefined>(undefined);
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [lastCall, setLastCall] = useState<LastCall | undefined>(undefined);
@@ -145,6 +156,16 @@ export function TravelForm({
         hasStay: Boolean(checkedInput.stay?.name),
         hasBudget: typeof checkedInput.budgetKrw === "number" && checkedInput.budgetKrw > 0,
       });
+      // 직전 ok 결과를 previousSlot 으로 보존 — 사용자가 toggle 로 돌아갈 수 있게.
+      if (isRegeneration && state.kind === "ok" && planInput) {
+        setPreviousSlot({
+          plan: state.plan,
+          input: planInput,
+          model: state.model,
+          planningModel: state.planningModel,
+          placeStats: state.placeStats,
+        });
+      }
       setPlanInput(checkedInput);
       setState({
         kind: "ok",
@@ -370,6 +391,28 @@ export function TravelForm({
           planningModel={state.planningModel}
           placeStats={state.placeStats}
           shareInput={planInput}
+          previousSlot={previousSlot}
+          onSwapToPrevious={() => {
+            if (!previousSlot || !planInput) return;
+            track("plan_swapped");
+            // current 와 previous 를 swap. 사용자가 다시 toggle 하면 원위치.
+            const currentSlot: PreviousSlot = {
+              plan: state.plan,
+              input: planInput,
+              model: state.model,
+              planningModel: state.planningModel,
+              placeStats: state.placeStats,
+            };
+            setPlanInput(previousSlot.input);
+            setState({
+              kind: "ok",
+              plan: previousSlot.plan,
+              model: previousSlot.model,
+              planningModel: previousSlot.planningModel,
+              placeStats: previousSlot.placeStats,
+            });
+            setPreviousSlot(currentSlot);
+          }}
         />
       )}
 
@@ -403,6 +446,7 @@ function extractPlaceStats(raw: unknown): PlaceStats | undefined {
   const destinationMismatches = typeof r.destinationMismatches === "number" ? r.destinationMismatches : undefined;
   const outlierRejects = typeof r.outlierRejects === "number" ? r.outlierRejects : undefined;
   const repairedPlaces = typeof r.repairedPlaces === "number" ? r.repairedPlaces : undefined;
+  const naverCalls = typeof r.naverCalls === "number" ? r.naverCalls : undefined;
   if (
     totalPlaceQueries === undefined ||
     verifiedPlaces === undefined ||
@@ -413,7 +457,15 @@ function extractPlaceStats(raw: unknown): PlaceStats | undefined {
   ) {
     return undefined;
   }
-  return { totalPlaceQueries, verifiedPlaces, warnings, destinationMismatches, outlierRejects, repairedPlaces };
+  return {
+    totalPlaceQueries,
+    verifiedPlaces,
+    warnings,
+    destinationMismatches,
+    outlierRejects,
+    repairedPlaces,
+    ...(naverCalls !== undefined ? { naverCalls } : {}),
+  };
 }
 
 function extractUsage(raw: unknown): Omit<LastCall, "model"> | undefined {
