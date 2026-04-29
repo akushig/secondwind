@@ -25,9 +25,13 @@ type ModelSnapshot = {
   blocked: Partial<Record<QuotaDim, BlockedInfo>>;
 };
 
-type QuotaResponse =
-  | { configured: true; byModel: ModelSnapshot[]; tpmUsed: number; tpmLimit: number }
+type NaverQuotaInfo =
+  | { configured: true; date: string; used: number; limit: number }
   | { configured: false };
+
+type QuotaResponse =
+  | { configured: true; byModel: ModelSnapshot[]; tpmUsed: number; tpmLimit: number; naver?: NaverQuotaInfo }
+  | { configured: false; naver?: NaverQuotaInfo };
 
 const REFRESH_MS = 15_000;
 
@@ -122,6 +126,17 @@ export function QuotaDebug({ lastCall }: { lastCall?: LastCall }) {
               <p className="pt-0.5 text-[10px] text-[var(--muted)]">
                 RPM/TPM = 최근 60초 · RPD = 마지막 Pacific 자정 이후 (한국시간 오후 리셋, DST 에 따라 16-17시)
               </p>
+            </section>
+          )}
+
+          {snapshot?.naver?.configured === true && (
+            <section className="mt-3 space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-[var(--muted)]">
+                Naver Local Search · {snapshot.naver.date} (KST)
+              </p>
+              <div className="font-mono">
+                <Bar used={snapshot.naver.used} limit={snapshot.naver.limit} />
+              </div>
             </section>
           )}
 

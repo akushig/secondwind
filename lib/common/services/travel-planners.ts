@@ -16,6 +16,7 @@ import {
   rejectDayOutliers,
   searchPlaceCandidates,
 } from "./travel-enrich";
+import { recordNaverCalls } from "@/lib/server/naver-quota-store";
 import {
   appendPoolToPrompt,
   applyPoolToPlan,
@@ -191,6 +192,9 @@ export async function runTravelPlanner(
     clearUnverifiedPlaceQueries(plan);
   }
 
+  // Naver 일일 누적 카운터에 이번 요청의 fetchCount 기록 (fire-and-forget).
+  void recordNaverCalls(enrichCache.fetchCount).catch(() => {});
+
   return {
     status: "ok",
     plan,
@@ -198,7 +202,7 @@ export async function runTravelPlanner(
     llmModel: result.model,
     promptVersion: result.promptVersion,
     usage,
-    placeStats: computePlaceStats(plan, repairedPlaces),
+    placeStats: computePlaceStats(plan, repairedPlaces, enrichCache),
     ...(rateLimitHits.length > 0 ? { rateLimitHits } : {}),
   };
 }
