@@ -43,11 +43,6 @@ secondwind 의 열린 작업 · 리스크 · 후속 아이템.
 **Design:** `.github/workflows/kakao-probe.yml` 추가 — `deployment_status` 이벤트에서 `curl -H "Referer: $PREVIEW_URL" https://dapi.kakao.com/v2/maps/sdk.js?appkey=$KEY` 검사. 401/403 이면 PR 체크 실패.
 **Key storage:** GitHub repo Secrets 에 `NEXT_PUBLIC_KAKAO_JS_KEY` 추가.
 
-### CI: typecheck / lint / build 게이트 추가
-**Priority:** P2
-**Why:** 지금 `guard.yml` 은 커밋 author 만 검사. 일반 코드 회귀를 PR 단계에서 걸러내는 체크가 없음.
-**Design:** `.github/workflows/build.yml` — `npm ci` + `npx tsc --noEmit` + `npm run lint` + `npm run build`.
-
 ---
 
 ## Travel 서비스
@@ -126,7 +121,36 @@ Naver Open API 공식 지역검색은 스키마상 `title / category / phone / a
 
 ### URL 공유 (LZ-string 압축)
 **Priority:** P3
-**Why:** 설계 문서의 primary 공유 방식. 플랜 state 를 query param 으로 압축해 카톡 공유. `@vercel/og` 로 preview 이미지까지 붙이면 바이럴 루프.
+**Why:** 설계 문서의 primary 공유 방식. 플랜 state 를 query param 으로 압축해 카톡 공유. (현재는 KV 기반 + 동적 OG 미리보기는 PR #61 로 도입.)
+
+### enrichPlan in-request 캐싱
+**Priority:** P3
+**Why:** PR #52 의 동시성 throttle 로 burst 는 잡았지만, 같은 query 가 candidate pass / repair pass / re-enrich 사이에 중복 호출될 수 있음. 요청 내 Map 으로 dedupe 하면 Naver quota 추가 절약.
+**Trigger:** Naver quota 가 실 사용에서 압박 받을 때.
+
+### map-view 마커 클러스터링
+**Priority:** P3
+**Why:** 하루 5~7곳 + 인접 day 마커가 좁은 지역에 밀집하면 숫자 라벨이 겹쳐 읽기 어려움. `kakao.maps.MarkerClusterer` 또는 zoom-level 기반 라벨 토글.
+
+### OSRM 호출 day 직렬화
+**Priority:** P2
+**Why:** [map-view.tsx:124](app/(site)/travel/_components/map-view.tsx#L124) 가 모든 day 의 route geometry 를 `Promise.all` 로 동시 호출. OSRM public demo 는 burst rate 정책이 모호해 client-side 에서 발사 패턴이 직선 fallback 을 트리거하기 쉬움. day 사이 짧은 간격 또는 sequential 로 안전판 보강. 프로덕션 OSRM 이전 (위 P2 항목) 전까지 가벼운 임시 조치.
+
+### iCal `.ics` export
+**Priority:** P3
+**Why:** decision 패널의 `todo_after_confirming` 마지막 단계가 "확정 후 외부 캘린더 등록". 사용자 동선이 plan-card → 카카오 캘린더/구글 캘린더 수동 입력. `.ics` 다운로드 버튼으로 한 번에. 라이브러리 의존 없이 RFC 5545 텍스트 생성 가능.
+
+### 루트 `/` OG 미리보기 이미지
+**Priority:** P3
+**Why:** PR #61 로 share 별 OG 는 도입됨. 루트 페이지 (브랜드 entry) 도 같은 패턴 재사용해 카톡·트위터에서 secondwind 카드가 보이게.
+
+### Plan 비교 모드
+**Priority:** P3
+**Why:** 사용자가 같은 input 으로 재생성 시 직전 결과를 잃음. 드로어/사이드 패널에 직전 plan 보존 → 좌우 비교. state 한 슬롯 추가 정도. 확정 결정 UX 강화.
+
+### 일정 인쇄 CSS
+**Priority:** P3
+**Why:** J 강박 사용자 중 종이 동선표를 들고 가는 패턴. `@media print` 로 지도·버튼·share 섹션 숨기고 텍스트 + transit 만 깔끔하게.
 
 ---
 
@@ -142,11 +166,6 @@ Naver Open API 공식 지역검색은 스키마상 `title / category / phone / a
 **Priority:** P1
 **Why:** ADR 0001 Risk #2 CRITICAL. 모노 플랫폼 · diary/experiment-3 placeholder 합의가 암묵적. 두 사람이 별도 repo 선호로 돌아서면 아키텍처 재논의 필요.
 
-### 테스트 프레임워크 도입
-**Priority:** P2
-**Why:** 기능이 쌓일수록 회귀 리스크 증가. 지금은 `.gstack/no-test-bootstrap` 마커로 의식적 skip 상태 (ADR 0001 sovereignty).
-**Trigger:** 첫 회귀 사고 후 or 팀원 합류 시.
-
 ---
 
 ## Completed
@@ -156,3 +175,5 @@ Naver Open API 공식 지역검색은 스키마상 `title / category / phone / a
 - **지도-카드 번호 매칭 + OSRM 실제 도로 경로** — PR #3 (2026-04-23)
 - **OSRM 거리·시간 덮어쓰기 + 정확도 UI (점선 밑줄 + 정보 출처 패널)** — PR #9 (2026-04-23)
 - **travel 결정 패널 v0** — v0.1.8.0 (2026-04-25)
+- **테스트 프레임워크 도입 (vitest + 41 단위 테스트)** — PR #59 (2026-04-29). ADR 0001 sovereignty 표 #4 부분 변경 — Amendments 섹션 참조.
+- **CI: typecheck / lint / build / test 게이트** — PR #60 (2026-04-29)
