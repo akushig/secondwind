@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BedDouble, Bus, Car, ShoppingBag, Soup, Ticket } from "lucide-react";
+import { track } from "@vercel/analytics";
 import {
   BUDGET_CATEGORIES,
   DEFAULT_BUDGET_INCLUDES,
@@ -146,8 +147,17 @@ export function TravelForm({
       const placeStats = extractPlaceStats(json.placeStats);
       const usage = extractUsage(json.usage);
       if (model && usage) setLastCall({ model, ...usage });
+      const isRegeneration = state.kind === "ok";
+      // 결정 funnel 측정용 — 새 plan 생성 / 재생성 분리. 같은 input 으로 재생성하면
+      // regenerated, 첫 생성이면 generated. 사용자에게 보이지 않는 anonymous metric.
+      track(isRegeneration ? "plan_regenerated" : "plan_generated", {
+        planningModel: responsePlanningModel,
+        dayCount: json.plan.days.length,
+        hasStay: Boolean(checkedInput.stay?.name),
+        hasBudget: typeof checkedInput.budgetKrw === "number" && checkedInput.budgetKrw > 0,
+      });
       // 직전 ok 결과를 previousSlot 으로 보존 — 사용자가 toggle 로 돌아갈 수 있게.
-      if (state.kind === "ok" && planInput) {
+      if (isRegeneration && state.kind === "ok" && planInput) {
         setPreviousSlot({
           plan: state.plan,
           input: planInput,
@@ -384,6 +394,7 @@ export function TravelForm({
           previousSlot={previousSlot}
           onSwapToPrevious={() => {
             if (!previousSlot || !planInput) return;
+            track("plan_swapped");
             // current 와 previous 를 swap. 사용자가 다시 toggle 하면 원위치.
             const currentSlot: PreviousSlot = {
               plan: state.plan,
